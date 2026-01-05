@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+
+<style>
+.fade-up {
+  animation: fadeUp 0.6s ease forwards;
+  opacity: 0;
+}
+.fade-up:nth-child(1){animation-delay:.1s}
+.fade-up:nth-child(2){animation-delay:.2s}
+
+@keyframes fadeUp {
+  from { transform: translateY(20px); opacity:0; }
+  to { transform: translateY(0); opacity:1; }
+}
+
+.badge-ban {
+  background: #dc2626;
+}
+</style>
+
+<h3 class="fw-bold mb-4">👥 User Management</h3>
+
+<div class="card fade-up">
+  <div class="card-body">
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Date Joined</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          {% for u in users %}
+          <tr>
+            <td>
+              {{ u.username }}
+              {% if u.is_superuser %}
+                <span class="badge bg-dark ms-1">Superuser</span>
+              {% endif %}
+            </td>
+            <td>{{ u.email|default:"—" }}</td>
+            <td>
+              {% if u.is_active %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge badge-ban">Banned</span>
+              {% endif %}
+            </td>
+            <td>{{ u.date_joined|date:"M d, Y" }}</td>
+
+            <td class="text-end">
+              {% if not u.is_superuser %}
+                
+                {% if u.is_active %}
+                  <a href="{% url 'ban_user' u.id %}"
+                     class="btn btn-sm btn-outline-warning">
+                    🚫 Ban
+                  </a>
+                {% else %}
+                  <a href="{% url 'unban_user' u.id %}"
+                     class="btn btn-sm btn-outline-success">
+                    ✅ Unban
+                  </a>
+                {% endif %}
+
+                <form method="post"
+                      action="{% url 'delete_user' u.id %}"
+                      class="d-inline">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger"
+                          onclick="return confirm('Delete this user permanently?')">
+                    🗑 Delete
+                  </button>
+                </form>
+
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

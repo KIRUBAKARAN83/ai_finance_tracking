@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Budgets{% endblock %}
+
+{% block content %}
+<h3 class="fw-bold mb-4 animate-title">📊 Your Budgets</h3>
+
+<a href="{% url 'create_budget' %}" class="btn btn-gradient mb-3 add-btn">
+  ➕ Add Budget
+</a>
+
+{% if budgets %}
+<div class="card budget-card shadow border-0">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0 animate-table">
+      <thead class="table-header">
+        <tr>
+          <th>Category</th>
+          <th>Limit (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in budgets %}
+        <tr class="table-row">
+          <td>{{ b.category }}</td>
+          <td>₹{{ b.limit }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<p class="text-muted animate-fade">No budgets created yet.</p>
+{% endif %}
+
+<style>
+/* ---------- COLORS ---------- */
+:root {
+  --primary: #2c3e50;
+  --accent: #3498db;
+  --success: #27ae60;
+  --background: #f4f6f9;
+}
+
+/* ---------- TITLE ---------- */
+.animate-title {
+  color: var(--primary);
+  animation: slideIn 0.8s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ---------- ADD BUTTON ---------- */
+.btn-gradient {
+  background: linear-gradient(135deg, var(--success), #2ecc71);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+.btn-gradient:hover {
+  background: linear-gradient(135deg, #1e8449, #27ae60);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* ---------- CARD ---------- */
+.budget-card {
+  border-radius: 14px;
+  background: #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.budget-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+/* ---------- TABLE ---------- */
+.table-header {
+  background: var(--accent);
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+.animate-table {
+  animation: fadeUp 1s ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.table-row {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.table-row:hover {
+  background-color: rgba(52,152,219,0.08);
+  transform: scale(1.01);
+}
+
+/* ---------- EMPTY STATE ---------- */
+.animate-fade {
+  animation: fadeIn 1s ease;
+  font-style: italic;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 768px) {
+  .table thead {
+    display: none;
+  }
+  .table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 0.75rem;
+  }
+  .table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+  }
+  .table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--accent);
+  }
+}
+</style>
+{% endblock %}

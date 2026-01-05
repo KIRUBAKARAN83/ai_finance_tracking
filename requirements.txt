@@ -1,0 +1,29 @@
+Django>=4.2,<5.0
+
+# Database (Supabase PostgreSQL)
+psycopg2-binary
+dj-database-url
+
+# Static files
+whitenoise
+
+# AI (Groq – production)
+groq
+
+# Data & analytics (used by your app)
+numpy
+pandas
+scikit-learn
+matplotlib
+
+# PDF generation
+reportlab
+
+# Security & utilities
+python-dotenv
+
+gunicorn
+
+python-dotenv
+
+

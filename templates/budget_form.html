@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Create Budget{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card budget-card shadow-lg border-0">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-4 text-center text-primary animate-title">
+          💰 Set Monthly Budget
+        </h4>
+
+        <form method="post" class="animate-form">
+          {% csrf_token %}
+          {{ form.as_p }}
+
+          <button class="btn btn-success w-100 mt-3 save-btn">
+            Save Budget
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* Card hover effect */
+.budget-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 12px;
+}
+.budget-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+/* Title animation */
+.animate-title {
+  animation: fadeInDown 0.8s ease;
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form fade-in */
+.animate-form {
+  animation: fadeInUp 1s ease;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Button hover */
+.save-btn {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: 600;
+  border-radius: 8px;
+}
+.save-btn:hover {
+  background-color: #198754; /* darker green */
+  transform: scale(1.03);
+}
+</style>
+{% endblock %}

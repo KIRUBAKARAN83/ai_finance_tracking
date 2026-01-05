@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<style>
+/* ================= COLORS ================= */
+.income  { background: linear-gradient(135deg,#16a085,#2ecc71); color:#fff; }
+.expense { background: linear-gradient(135deg,#c0392b,#e74c3c); color:#fff; }
+.savings { background: linear-gradient(135deg,#5b2c83,#8e44ad); color:#fff; }
+
+/* ================= SCROLL ANIMATION ================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all .7s cubic-bezier(.22,.61,.36,1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ================= CARD INTERACTION ================= */
+.card {
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
+}
+
+/* ================= BUDGET PROGRESS ================= */
+.progress-bar {
+  width: 0%;
+  transition: width 1.4s cubic-bezier(.22,.61,.36,1);
+}
+
+/* ================= CHAT ================= */
+.chat-user {
+  background:#0d6efd;
+  color:#fff;
+  padding:8px 12px;
+  border-radius:14px 14px 0 14px;
+  margin:6px 0;
+  max-width:75%;
+  margin-left:auto;
+}
+.chat-bot {
+  background:#e9ecef;
+  color:#000;
+  padding:8px 12px;
+  border-radius:14px 14px 14px 0;
+  margin:6px 0;
+  max-width:75%;
+}
+</style>
+
+<h3 class="fw-bold mb-4 reveal">📊 AI Finance Dashboard</h3>
+
+<!-- ================= SUMMARY ================= -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4 reveal"><div class="card income"><div class="card-body"><h6>💰 Income</h6><h3 id="incomeCounter">₹0</h3></div></div></div>
+  <div class="col-md-4 reveal"><div class="card expense"><div class="card-body"><h6>📉 Expense</h6><h3 id="expenseCounter">₹0</h3></div></div></div>
+  <div class="col-md-4 reveal"><div class="card savings"><div class="card-body"><h6>💎 Savings</h6><h3 id="savingsCounter">₹0</h3></div></div></div>
+</div>
+
+<!-- ================= AI INSIGHTS ================= -->
+<div class="card mb-4 reveal">
+  <div class="card-body">
+    <h5 class="fw-bold">🤖 AI Insights</h5>
+
+    {% if insights or auto_insights %}
+      <ul class="mb-0">
+        
+        {# Rule-based / real-time insights #}
+        {% for i in insights %}
+          <li>✔ {{ i }}</li>
+        {% endfor %}
+
+        {# Cron-generated AI insights #}
+        {% for ai in auto_insights %}
+          <li>🧠 {{ ai.text }}</li>
+        {% endfor %}
+
+      </ul>
+    {% else %}
+      <p class="text-muted mb-0">
+        No insights yet. Add more transactions to unlock AI insights.
+      </p>
+    {% endif %}
+
+  </div>
+</div>
+
+
+<!-- ================= BUDGETS ================= -->
+{% if budgets %}
+<div class="card mb-4 reveal">
+  <div class="card-body">
+    <h5 class="fw-bold mb-3">📉 Budget Usage</h5>
+    {% for b in budgets %}
+    <div class="mb-3">
+      <div class="d-flex justify-content-between">
+        <strong>{{ b.category }}</strong>
+        <span>₹{{ b.spent }} / ₹{{ b.limit }}</span>
+      </div>
+      <div class="progress" style="height:10px;">
+        <div class="progress-bar
+          {% if b.percent >= 100 %}bg-danger
+          {% elif b.percent >= 80 %}bg-warning
+          {% else %}bg-success
+          {% endif %}"
+          data-percent="{{ b.percent }}">
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ================= ACTIONS ================= -->
+<div class="mb-4 reveal">
+  <a href="{% url 'add_transaction' %}" class="btn btn-success">➕ Add</a>
+  <a href="{% url 'monthly_pdf' %}" class="btn btn-outline-dark ms-2">⬇ PDF</a>
+  <a href="{% url 'create_budget' %}" class="btn btn-outline-primary ms-2">➕ Budget</a>
+</div>
+
+<!-- ================= CHARTS ================= -->
+<div class="row g-4 mb-5">
+  <div class="col-md-6 reveal"><div class="card"><div class="card-body"><canvas id="barChart"></canvas></div></div></div>
+  <div class="col-md-6 reveal"><div class="card"><div class="card-body"><canvas id="pieChart"></canvas></div></div></div>
+</div>
+
+<!-- ================= AI CHAT ================= -->
+<div class="card mt-4 reveal">
+  <div class="card-body">
+    <h5 class="fw-bold">🤖 AI Assistant</h5>
+
+    <div id="chatBox" style="height:260px;overflow-y:auto;background:#f8f9fa;padding:10px;border-radius:10px" class="mb-3">
+      <div class="text-muted">Ask me about your budget, expenses, savings…</div>
+    </div>
+
+    <div class="input-group">
+      <input id="chatInput" class="form-control" placeholder="Ask something…" autocomplete="off">
+      <button id="chatSend" class="btn btn-primary">Send</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* ===== REVEAL ===== */
+  const obs = new IntersectionObserver(e => e.forEach(x => x.isIntersecting && x.target.classList.add("active")), {threshold:.15});
+  document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
+
+  /* ===== BUDGET BARS ===== */
+  document.querySelectorAll(".progress-bar").forEach(b => {
+    setTimeout(() => b.style.width = (b.dataset.percent || 0) + "%", 300);
+  });
+
+  /* ===== COUNTERS ===== */
+  function animate(el,val){
+    let c=0,step=Math.max(val/60,1);
+    (function run(){ c+=step; c<val ? (el.innerText="₹"+Math.floor(c),requestAnimationFrame(run)) : el.innerText="₹"+val })();
+  }
+
+  /* ===== CHARTS ===== */
+  const barC=document.getElementById("barChart"), pieC=document.getElementById("pieChart");
+  let bar=null,pie=null,done=false;
+
+  function load(){
+    fetch("{% url 'chart_data' %}").then(r=>r.json()).then(d=>{
+      if(!done){
+        animate(incomeCounter,d.income);
+        animate(expenseCounter,d.expense);
+        animate(savingsCounter,d.savings);
+        done=true;
+      }
+      if(!bar){
+        bar=new Chart(barC,{type:"bar",data:{labels:["Income","Expense","Savings"],datasets:[{data:[d.income,d.expense,d.savings],backgroundColor:["#1abc9c","#e74c3c","#9b59b6"],borderRadius:12}]},options:{plugins:{legend:{display:false}}}});
+        pie=new Chart(pieC,{type:"pie",data:{labels:["Income","Expense","Savings"],datasets:[{data:[d.income,d.expense,d.savings],backgroundColor:["#16a085","#e74c3c","#8e44ad"]}]}})
+      } else {
+        bar.data.datasets[0].data=[d.income,d.expense,d.savings];
+        pie.data.datasets[0].data=[d.income,d.expense,d.savings];
+        bar.update(); pie.update();
+      }
+    });
+  }
+  load(); setInterval(load,15000);
+
+  /* ===== CHAT ===== */
+  const chatBox=document.getElementById("chatBox");
+  const chatInput=document.getElementById("chatInput");
+  const chatSend=document.getElementById("chatSend");
+
+  function append(text,cls){
+    const d=document.createElement("div");
+    d.className=cls;
+    d.innerText=text;
+    chatBox.appendChild(d);
+    chatBox.scrollTop=chatBox.scrollHeight;
+  }
+
+  function send(){
+    const msg=chatInput.value.trim();
+    if(!msg) return;
+    append(msg,"chat-user");
+    chatInput.value="";
+    chatSend.disabled=true;
+    append("typing…","chat-bot");
+
+    fetch("{% url 'chat_api' %}",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "X-CSRFToken":"{{ csrf_token }}"
+      },
+      body:JSON.stringify({message:msg})
+    })
+    .then(r=>r.json())
+    .then(d=>chatBox.lastChild.innerText=d.reply||"⚠️ No reply")
+    .catch(()=>chatBox.lastChild.innerText="⚠️ Chat failed")
+    .finally(()=>chatSend.disabled=false);
+  }
+
+  chatSend.addEventListener("click", send);
+  chatInput.addEventListener("keydown", e => e.key==="Enter" && send());
+
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}All Transactions{% endblock %}
+
+{% block content %}
+
+<style>
+/* ---------- GLOBAL THEME ---------- */
+:root {
+  --primary: #4a90e2;
+  --secondary: #50e3c2;
+  --danger: #e74c3c;
+  --success: #2ecc71;
+  --background: #f9f9f9;
+  --text-dark: #333;
+}
+
+/* ---------- PAGE ANIMATION ---------- */
+.page-enter {
+  animation: pageFade 0.6s ease forwards;
+  opacity: 0;
+}
+@keyframes pageFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- FILTER CARD ---------- */
+.search-card {
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ffffff, #f7f9fc);
+  border: 1px solid #e0e0e0;
+  animation: fadeUp 0.5s ease forwards;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- TABLE CARD ---------- */
+.table-card {
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  animation: fadeUp 0.7s ease forwards;
+}
+
+.table thead th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--primary);
+}
+
+.table tbody tr {
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+.table tbody tr:hover {
+  background: rgba(74,144,226,0.08);
+  transform: scale(1.005);
+}
+
+/* ---------- BADGES ---------- */
+.badge-income {
+  background: linear-gradient(135deg, var(--success), #16a085);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+}
+.badge-expense {
+  background: linear-gradient(135deg, var(--danger), #c0392b);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+}
+
+/* ---------- ACTION BUTTONS ---------- */
+.action-btn {
+  opacity: 0.9;
+  transition: all 0.25s ease;
+}
+.action-btn:hover {
+  opacity: 1;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* ---------- PAGINATION ---------- */
+.pagination .page-link {
+  border-radius: 10px;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.pagination .page-link:hover {
+  background: var(--primary);
+  color: #fff;
+}
+.pagination .page-item.active .page-link {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 768px) {
+  .action-btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 6px;
+  }
+  .table thead {
+    display: none;
+  }
+  .table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 0.75rem;
+  }
+  .table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+  }
+  .table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--primary);
+  }
+}
+</style>
+
+<div class="page-enter">
+
+<h3 class="fw-bold mb-4 text-primary">📑 All Transactions</h3>
+
+<!-- ================= FILTERS ================= -->
+<div class="card search-card shadow-sm mb-4">
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+
+      <div class="col-md-4">
+        <label class="form-label fw-semibold">Search</label>
+        <input type="text"
+               name="q"
+               value="{{ query }}"
+               class="form-control"
+               placeholder="Category, note, type">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">From</label>
+        <input type="date"
+               name="start"
+               value="{{ start_date }}"
+               class="form-control">
+      </div>
+
+      <div class="col-md-2">
+        <label class="form-label fw-semibold">To</label>
+        <input type="date"
+               name="end"
+               value="{{ end_date }}"
+               class="form-control">
+      </div>
+
+      <div class="col-md-2">
+        <button class="btn btn-primary w-100 shadow-sm">
+          🔍 Apply
+        </button>
+      </div>
+
+      {% if query or start_date or end_date %}
+      <div class="col-md-2">
+        <a href="/transactions/" class="btn btn-outline-secondary w-100 shadow-sm">
+          ✖ Clear
+        </a>
+      </div>
+      {% endif %}
+
+    </form>
+  </div>
+</div>
+
+<!-- ================= TABLE ================= -->
+<div class="card table-card shadow-sm">
+  <div class="card-body">
+
+    {% if transactions %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Note</th>
+            <th>Amount (₹)</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for txn in transactions %}
+          <tr>
+            <td data-label="Date">{{ txn.date }}</td>
+            <td data-label="Category">{{ txn.category }}</td>
+            <td data-label="Type">
+              {% if txn.transaction_type == "INCOME" %}
+                <span class="badge badge-income">Income</span>
+              {% else %}
+                <span class="badge badge-expense">Expense</span>
+              {% endif %}
+            </td>
+            <td data-label="Note">
+              {% if txn.note %}
+                {{ txn.note }}
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td data-label="Amount" class="fw-semibold text-success">₹{{ txn.amount }}</td>
+            <td data-label="Actions" class="text-end">
+              <a href="{% url 'edit_transaction' txn.id %}"
+                 class="btn btn-sm btn-outline-primary action-btn me-1">
+                ✏ Edit
+              </a>
+              <a href="{% url 'delete_transaction' txn.id %}"
+                 class="btn btn-sm btn-outline-danger action-btn">
+                🗑 Delete
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ================= PAGINATION ================= -->
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if transactions.has_previous %}
+        <li class="page-item">
+          <a class="page-link"
+             href="?page={{ transactions.previous_page_number }}
+             {% if query %}&q={{ query }}{% endif %}
+             {% if start_date %}&start={{ start_date }}{% endif %}
+             {% if end_date %}&end={{ end_date }}{% endif %}">
+            « Prev
+          </a>
+        </li>
+        {% endif %}
+
+        <li class="page-item active">
+          <span class="page-link">
+            Page {{ transactions.number }} of {{ transactions.paginator.num_pages }}
+          </span>
+        </li>
+
+        {% if transactions.has_next %}
+        <li class="page-item">
+          <a class="page-link"
+             href="?page={{ transactions.next_page_number }}
+             {% if query %}&q={{ query }}{% endif %}
+             {% if start_date %}&start={{ start_date }}{% endif %}
+             {% if end_date %}&end={{ end_date }}{% endif %}">
+            Next »
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </nav>
+
+    {% else %}
+      <p class="text-muted mb-0">No transactions found.</p>
+    {% endif %}
+
+  </div>
+</div>
+
+</div>
+
+{% endblock %}

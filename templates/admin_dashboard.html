@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<style>
+/* ---------- ANIMATIONS ---------- */
+.fade-up {
+  animation: fadeUp 0.7s ease forwards;
+  opacity: 0;
+}
+.fade-up:nth-child(1){animation-delay:.1s}
+.fade-up:nth-child(2){animation-delay:.25s}
+.fade-up:nth-child(3){animation-delay:.4s}
+.fade-up:nth-child(4){animation-delay:.55s}
+
+@keyframes fadeUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ---------- CARDS ---------- */
+.admin-card {
+  border-radius: 18px;
+  color: #fff;
+}
+
+.bg-users {
+  background: linear-gradient(135deg,#2563eb,#3b82f6);
+}
+.bg-income {
+  background: linear-gradient(135deg,#16a085,#2ecc71);
+}
+.bg-expense {
+  background: linear-gradient(135deg,#c0392b,#e74c3c);
+}
+.bg-transactions {
+  background: linear-gradient(135deg,#7c3aed,#8b5cf6);
+}
+</style>
+
+<h3 class="fw-bold mb-4">🛠 Admin Dashboard</h3>
+
+<div class="row g-4">
+
+   <!-- USERS -->
+  <div class="col-md-3">
+    <div class="card admin-card bg-users pulse shadow-lg">
+      <div class="card-body">
+        <h6 class="text-uppercase small">Total Users</h6>
+        <h2 class="fw-bold">{{ total_users }}</h2>
+        <small>
+          <span class="online-dot"></span>
+          {{ online_users }} online now
+        </small>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- INCOME -->
+  <div class="col-md-3 fade-up">
+    <div class="card admin-card bg-income shadow-lg">
+      <div class="card-body">
+        <h6 class="text-uppercase small">Total Income</h6>
+        <h2 class="fw-bold">₹{{ total_income }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPENSE -->
+  <div class="col-md-3 fade-up">
+    <div class="card admin-card bg-expense shadow-lg">
+      <div class="card-body">
+        <h6 class="text-uppercase small">Total Expense</h6>
+        <h2 class="fw-bold">₹{{ total_expense }}</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS -->
+  <div class="col-md-3 fade-up">
+    <div class="card admin-card bg-transactions shadow-lg">
+      <div class="card-body">
+        <h6 class="text-uppercase small">Transactions</h6>
+        <h2 class="fw-bold">{{ total_transactions }}</h2>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- QUICK ACTIONS -->
+<div class="card shadow-sm mt-5 fade-up">
+  <div class="card-body d-flex flex-wrap gap-3">
+    <a class="btn btn-outline-dark"  href="/admin-users/">👥 Manage Users</a>
+
+      
+   
+    <a href="/admin/" class="btn btn-outline-dark">
+      ⚙ Django Admin
+    </a>
+  </div>
+</div>
+
+{% endblock %}
