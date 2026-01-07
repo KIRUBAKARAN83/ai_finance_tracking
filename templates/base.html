@@ -170,11 +170,11 @@ body.dark #chatbotBox{background:#1e1e1e}
 
 <!-- ================= MOBILE NAV ================= -->
 <nav class="mobile-nav d-lg-none">
-<a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+<a href="{% url 'transactions:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
 <i class="bi bi-speedometer2"></i>Home</a>
-<a href="{% url 'all_transactions' %}" class="{% if request.resolver_match.url_name == 'all_transactions' %}active{% endif %}">
+<a href="{% url 'transactions:all_transactions' %}" class="{% if request.resolver_match.url_name == 'all_transactions' %}active{% endif %}">
 <i class="bi bi-receipt"></i>Txns</a>
-<a href="{% url 'budgets_list' %}" class="{% if request.resolver_match.url_name == 'budgets_list' %}active{% endif %}">
+<a href="{% url 'transactions:budgets_list' %}" class="{% if request.resolver_match.url_name == 'budgets_list' %}active{% endif %}">
 <i class="bi bi-pie-chart"></i>Budget</a>
 <a href="#" id="installBtnMobile"><i class="bi bi-download"></i>Install</a>
 </nav>
@@ -236,7 +236,7 @@ e.preventDefault();
 const m=ip.value.trim(); if(!m)return;
 ms.innerHTML+=`<div class="chat-user">🧑 ${m}</div>`;
 ip.value="";
-fetch("{% url 'chat_api' %}",{
+fetch("{% url 'transactions:chat_api' %}",{
 method:"POST",
 headers:{
 "Content-Type":"application/json",
