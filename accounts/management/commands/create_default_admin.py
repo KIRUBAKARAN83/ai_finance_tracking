@@ -7,9 +7,9 @@ class Command(BaseCommand):
     help = "Create default admin if not exists"
 
     def handle(self, *args, **kwargs):
-        username = "admin"
-        email = "admin@example.com"
-        password = "Admin@123"  # 🔥 change later after login
+        username = "kiruba_karan"
+        email = "dhayalankiruba17@gmail.com"
+        password = "kiruba@123"  # 🔥 change later after login
 
         if User.objects.filter(username=username).exists():
             self.stdout.write("ℹ️ Admin already exists")
