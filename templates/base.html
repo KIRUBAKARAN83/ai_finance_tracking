@@ -14,7 +14,89 @@
 <meta name="theme-color" content="#0d6efd">
 
 <style>
-/* (your styles unchanged) */
+/* ================= GLOBAL ================= */
+body{
+  background:linear-gradient(135deg,#f8f9fa,#eef2f7);
+  transition:.3s;
+}
+body.dark{background:#121212;color:#eaeaea}
+body.dark .card{background:#1e1e1e;color:#eaeaea}
+body.dark .navbar{background:#000!important}
+
+/* ================= NAVBAR ================= */
+.navbar .nav-link{
+  position:relative;
+  padding:.5rem .75rem;
+}
+.navbar .nav-link::after{
+  content:"";
+  position:absolute;
+  bottom:-6px;
+  left:50%;
+  width:0;height:3px;
+  background:linear-gradient(90deg,#0d6efd,#6ea8fe);
+  transform:translateX(-50%);
+  transition:.3s;
+}
+.navbar .nav-link.active::after,
+.navbar .nav-link:hover::after{width:80%}
+.navbar .nav-link.active{
+  color:#fff!important;
+  font-weight:600;
+  text-shadow:0 0 8px rgba(13,110,253,.6);
+}
+
+/* ================= MOBILE NAV ================= */
+.mobile-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  height:64px;background:#111;
+  display:flex;z-index:1050;
+}
+.mobile-nav a{
+  flex:1;text-align:center;
+  color:#aaa;text-decoration:none;
+  font-size:12px;padding-top:8px;
+}
+.mobile-nav a.active{color:#0d6efd}
+.mobile-nav i{font-size:20px;display:block}
+@media(max-width:991px){body{padding-bottom:70px}}
+
+/* ================= CHATBOT ================= */
+#chatbotBtn{
+  position:fixed;right:20px;bottom:90px;
+  width:56px;height:56px;border-radius:50%;
+  background:#0d6efd;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,.25);
+  z-index:1100;
+}
+#chatbotBox{
+  position:fixed;right:20px;bottom:160px;
+  width:320px;max-height:420px;
+  background:#fff;border-radius:14px;
+  display:none;flex-direction:column;
+  overflow:hidden;z-index:1100;
+}
+body.dark #chatbotBox{background:#1e1e1e}
+.chat-header{
+  background:#0d6efd;color:#fff;
+  padding:10px;font-weight:600;
+  display:flex;justify-content:space-between;
+}
+#chatMessages{
+  flex:1;padding:10px;overflow-y:auto;font-size:14px;
+}
+.chat-user{text-align:right;margin-bottom:6px}
+.chat-bot{text-align:left;margin-bottom:6px;opacity:.9}
+#chatForm{display:flex;border-top:1px solid #ddd}
+#chatForm input{
+  flex:1;border:none;padding:10px;outline:none;
+}
+#chatForm button{
+  border:none;background:#0d6efd;
+  color:#fff;padding:0 14px;
+}
 </style>
 </head>
 
@@ -98,7 +180,7 @@
 </nav>
 
 <!-- ================= CHATBOT ================= -->
-<div id="chatbotBtn">💬</div>
+
 
 <div id="chatbotBox">
 <div class="chat-header">
@@ -118,7 +200,24 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-/* (your JS unchanged) */
+document.addEventListener("DOMContentLoaded",()=>{
+const t=document.getElementById("themeToggle");
+if(localStorage.getItem("theme")==="dark")document.body.classList.add("dark");
+t.onclick=()=>{document.body.classList.toggle("dark");
+localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");};
+});
+</script>
+
+<script>
+let deferredPrompt=null;
+const iBtn=document.getElementById("installBtn");
+const iBtnM=document.getElementById("installBtnMobile");
+window.addEventListener("beforeinstallprompt",e=>{
+e.preventDefault();deferredPrompt=e;iBtn.classList.remove("d-none");
+});
+function install(){if(!deferredPrompt)return;
+deferredPrompt.prompt();deferredPrompt=null;iBtn.classList.add("d-none");}
+iBtn.onclick=install;iBtnM.onclick=e=>{e.preventDefault();install();}
 </script>
 
 <script>
