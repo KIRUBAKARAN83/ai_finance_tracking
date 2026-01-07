@@ -15,7 +15,12 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".onrender.com",
+    ".railway.app",
+]
 
 # -------------------------------------------------
 # APPLICATIONS
@@ -103,9 +108,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # -------------------------------------------------
 # AUTH
 # -------------------------------------------------
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/accounts/login/"
-
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'transactions:dashboard'
+LOGOUT_REDIRECT_URL = 'login'
 # -------------------------------------------------
 # DEFAULT PK
 # -------------------------------------------------
