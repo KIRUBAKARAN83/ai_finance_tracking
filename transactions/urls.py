@@ -1,24 +1,14 @@
 from django.urls import path
-
 from .views import (
-    # User
     dashboard,
     add_transaction,
     edit_transaction,
     delete_transaction,
     all_transactions,
-
-    # Charts / API
     chart_data,
-
-    # Budgets
     create_budget,
     budgets_list,
-
-    # Chatbot
     chat_api,
-
-    # Admin
     admin_dashboard,
     admin_users,
     ban_user,
@@ -27,11 +17,8 @@ from .views import (
     offline,
     chat_stream,
 )
-
 from .pdf import monthly_pdf
 
-
-# Namespace for reverse lookups like "transactions:dashboard"
 app_name = "transactions"
 
 urlpatterns = [
