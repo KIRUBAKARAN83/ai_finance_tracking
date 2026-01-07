@@ -57,7 +57,6 @@
     </div>
   </div>
 
-
   <!-- INCOME -->
   <div class="col-md-3 fade-up">
     <div class="card admin-card bg-income shadow-lg">
@@ -93,10 +92,7 @@
 <!-- QUICK ACTIONS -->
 <div class="card shadow-sm mt-5 fade-up">
   <div class="card-body d-flex flex-wrap gap-3">
-    <a class="btn btn-outline-dark"  href="/admin-users/">👥 Manage Users</a>
-
-      
-   
+    <a class="btn btn-outline-dark" href="{% url 'transactions:admin_users' %}">👥 Manage Users</a>
     <a href="/admin/" class="btn btn-outline-dark">
       ⚙ Django Admin
     </a>
