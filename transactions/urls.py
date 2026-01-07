@@ -25,11 +25,14 @@ from .views import (
     unban_user,
     delete_user,
     offline,
-    chat_stream
+    chat_stream,
 )
 
 from .pdf import monthly_pdf
 
+
+# Namespace for reverse lookups like "transactions:dashboard"
+app_name = "transactions"
 
 urlpatterns = [
     # ================= USER =================
@@ -42,8 +45,10 @@ urlpatterns = [
     # ================= BUDGETS =================
     path("budgets/", budgets_list, name="budgets_list"),
     path("budgets/add/", create_budget, name="create_budget"),
-    path("chat/stream/", chat_stream, name="chat_stream"),
 
+    # ================= CHAT =================
+    path("chat/", chat_api, name="chat_api"),
+    path("chat/stream/", chat_stream, name="chat_stream"),
 
     # ================= PDF =================
     path("pdf/", monthly_pdf, name="monthly_pdf"),
@@ -51,8 +56,6 @@ urlpatterns = [
     # ================= API =================
     path("api/chart-data/", chart_data, name="chart_data"),
     path("api/chat/", chat_api, name="chat_api"),
-    path("chat/", chat_api, name="chat_api"),
-
 
     # ================= ADMIN =================
     path("admin-dashboard/", admin_dashboard, name="admin_dashboard"),
