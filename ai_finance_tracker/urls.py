@@ -8,7 +8,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("accounts/", include("accounts.urls")),
-    path("", include("transactions.urls"),namespace="transactions")),  # MUST EXIST
     path("", include("transactions.urls", namespace="transactions")),
     path("transactions/", views.all_transactions, name="all_transactions"),
 ]
