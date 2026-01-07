@@ -70,27 +70,20 @@
 
     {% if insights or auto_insights %}
       <ul class="mb-0">
-        
-        {# Rule-based / real-time insights #}
         {% for i in insights %}
           <li>✔ {{ i }}</li>
         {% endfor %}
-
-        {# Cron-generated AI insights #}
         {% for ai in auto_insights %}
-          <li>🧠 {{ ai.text }}</li>
+          <li>🧠 {{ ai }}</li>
         {% endfor %}
-
       </ul>
     {% else %}
       <p class="text-muted mb-0">
         No insights yet. Add more transactions to unlock AI insights.
       </p>
     {% endif %}
-
   </div>
 </div>
-
 
 <!-- ================= BUDGETS ================= -->
 {% if budgets %}
@@ -120,9 +113,9 @@
 
 <!-- ================= ACTIONS ================= -->
 <div class="mb-4 reveal">
-  <a href="{% url 'add_transaction' %}" class="btn btn-success">➕ Add</a>
-  <a href="{% url 'monthly_pdf' %}" class="btn btn-outline-dark ms-2">⬇ PDF</a>
-  <a href="{% url 'create_budget' %}" class="btn btn-outline-primary ms-2">➕ Budget</a>
+  <a href="{% url 'transactions:add_transaction' %}" class="btn btn-success">➕ Add</a>
+  <a href="{% url 'transactions:monthly_pdf' %}" class="btn btn-outline-dark ms-2">⬇ PDF</a>
+  <a href="{% url 'transactions:create_budget' %}" class="btn btn-outline-primary ms-2">➕ Budget</a>
 </div>
 
 <!-- ================= CHARTS ================= -->
@@ -151,28 +144,23 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-
-  /* ===== REVEAL ===== */
   const obs = new IntersectionObserver(e => e.forEach(x => x.isIntersecting && x.target.classList.add("active")), {threshold:.15});
   document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
 
-  /* ===== BUDGET BARS ===== */
   document.querySelectorAll(".progress-bar").forEach(b => {
     setTimeout(() => b.style.width = (b.dataset.percent || 0) + "%", 300);
   });
 
-  /* ===== COUNTERS ===== */
   function animate(el,val){
     let c=0,step=Math.max(val/60,1);
     (function run(){ c+=step; c<val ? (el.innerText="₹"+Math.floor(c),requestAnimationFrame(run)) : el.innerText="₹"+val })();
   }
 
-  /* ===== CHARTS ===== */
   const barC=document.getElementById("barChart"), pieC=document.getElementById("pieChart");
   let bar=null,pie=null,done=false;
 
   function load(){
-    fetch("{% url 'chart_data' %}").then(r=>r.json()).then(d=>{
+    fetch("{% url 'transactions:chart_data' %}").then(r=>r.json()).then(d=>{
       if(!done){
         animate(incomeCounter,d.income);
         animate(expenseCounter,d.expense);
@@ -191,7 +179,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   load(); setInterval(load,15000);
 
-  /* ===== CHAT ===== */
   const chatBox=document.getElementById("chatBox");
   const chatInput=document.getElementById("chatInput");
   const chatSend=document.getElementById("chatSend");
@@ -212,13 +199,14 @@ document.addEventListener("DOMContentLoaded", () => {
     chatSend.disabled=true;
     append("typing…","chat-bot");
 
-    fetch("{% url 'chat_api' %}",{
+    fetch("{% url 'transactions:chat_api' %}",{
       method:"POST",
       headers:{
         "Content-Type":"application/json",
         "X-CSRFToken":"{{ csrf_token }}"
       },
       body:JSON.stringify({message:msg})
+
     })
     .then(r=>r.json())
     .then(d=>chatBox.lastChild.innerText=d.reply||"⚠️ No reply")
