@@ -133,13 +133,15 @@ body.dark #chatbotBox{background:#1e1e1e}
 </a>
 </li>
 
-{% if user.is_staff %}
+{% if user.is_staff or user.is_superuser %}
 <li class="nav-item">
-<a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'transactions:admin_dashboard' %}">
-<i class="bi bi-shield-lock"></i> Admin
-</a>
+  <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" 
+     href="{% url 'transactions:admin_dashboard' %}">
+    <i class="bi bi-shield-lock"></i> Admin
+  </a>
 </li>
 {% endif %}
+
 
 <li class="nav-item ms-2">
 <button id="installBtn" class="btn btn-outline-primary btn-sm d-none">
