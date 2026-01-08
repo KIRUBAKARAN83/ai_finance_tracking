@@ -146,10 +146,9 @@ STATICFILES_STORAGE = (
 # =================================================
 # AUTH / ALLAUTH
 # =================================================
-LOGIN_URL = "login"
+LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "login"
-
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
