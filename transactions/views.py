@@ -43,45 +43,89 @@ from accounts.models import UserActivity
 # =========================================================
 @login_required(login_url="/accounts/login/")
 def dashboard(request):
+    # 🔒 IMPORTANT: handle HEAD requests (Render health checks)
+    if request.method == "HEAD":
+        from django.http import HttpResponse
+        return HttpResponse(status=200)
+
     today = date.today()
 
-    summary = monthly_summary(request.user, today.month, today.year)
+    # ------------------------------
+    # SAFE SUMMARY
+    # ------------------------------
+    try:
+        summary = monthly_summary(request.user, today.month, today.year)
+    except Exception as e:
+        print("SUMMARY ERROR:", e)
+        summary = {}
+
     summary.setdefault("insights", [])
 
-    # Rule-based alerts
-    alerts = budget_alerts(request.user)
-    summary["insights"].extend(alerts)
+    # ------------------------------
+    # RULE-BASED INSIGHTS
+    # ------------------------------
+    try:
+        alerts = budget_alerts(request.user)
+        summary["insights"].extend(alerts)
+    except Exception as e:
+        print("ALERT ERROR:", e)
 
-    # Stored insights (safe)
-    auto_insights = (
-        Insight.objects
-        .filter(user=request.user)
-        .order_by("-created_at")
-        .values_list("text", flat=True)[:5]
-    )
-    summary["insights"].extend(list(auto_insights))
+    # ------------------------------
+    # STORED INSIGHTS
+    # ------------------------------
+    try:
+        auto_insights = (
+            Insight.objects
+            .filter(user=request.user)
+            .order_by("-created_at")
+            .values_list("text", flat=True)[:5]
+        )
+        summary["insights"].extend(auto_insights)
+    except Exception as e:
+        print("INSIGHT ERROR:", e)
 
-    health = financial_health_score(request.user)
-    comparison = month_comparison(request.user)
-    budgets = budget_progress(request.user)
+    # ------------------------------
+    # HEALTH + COMPARISON
+    # ------------------------------
+    try:
+        health = financial_health_score(request.user)
+    except Exception:
+        health = {}
 
+    try:
+        comparison = month_comparison(request.user)
+    except Exception:
+        comparison = {}
+
+    # ------------------------------
+    # BUDGETS
+    # ------------------------------
+    try:
+        budgets = budget_progress(request.user)
+    except Exception:
+        budgets = []
+
+    # ------------------------------
+    # TRANSACTIONS
+    # ------------------------------
     query = request.GET.get("q", "").strip()
-    qs = Transaction.objects.filter(
+
+    transactions_qs = Transaction.objects.filter(
         user=request.user,
         date__month=today.month,
         date__year=today.year,
     )
 
     if query:
-        qs = qs.filter(
+        transactions_qs = transactions_qs.filter(
             Q(category__icontains=query)
             | Q(note__icontains=query)
             | Q(transaction_type__icontains=query)
         )
 
-    transactions = Paginator(qs.order_by("-date"), 10).get_page(
-        request.GET.get("page")
-    )
+    transactions = Paginator(
+        transactions_qs.order_by("-date"), 10
+    ).get_page(request.GET.get("page"))
 
     return render(
         request,
@@ -95,6 +139,7 @@ def dashboard(request):
             "query": query,
         },
     )
+
 
 
 # =========================================================
