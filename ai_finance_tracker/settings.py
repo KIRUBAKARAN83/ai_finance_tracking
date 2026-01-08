@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
 
-    # Auth (Google login)
+    # Allauth (Google login)
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
@@ -77,12 +77,12 @@ MIDDLEWARE = [
 
     "django.contrib.auth.middleware.AuthenticationMiddleware",
 
-    # ✅ REQUIRED BY DJANGO-ALLAUTH
+    # REQUIRED for django-allauth
     "allauth.account.middleware.AccountMiddleware",
 
     "django.contrib.messages.middleware.MessageMiddleware",
 
-    # optional – safe
+    # optional but safe
     "accounts.middleware.ActiveUserMiddleware",
 ]
 
@@ -133,10 +133,9 @@ USE_I18N = True
 USE_TZ = True
 
 # =================================================
-# STATIC FILES
+# STATIC FILES (RENDER SAFE)
 # =================================================
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = (
@@ -144,7 +143,7 @@ STATICFILES_STORAGE = (
 )
 
 # =================================================
-# AUTH / ALLAUTH
+# AUTH / ALLAUTH (CRITICAL FIXES)
 # =================================================
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
@@ -152,23 +151,21 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_USERNAME_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"
 
-# Google provider scopes
+# 🔥 IMPORTANT: avoid Google login crashes
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
     }
 }
 
 # =================================================
-# DEFAULT PRIMARY KEY
+# DEFAULT PK
 # =================================================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
