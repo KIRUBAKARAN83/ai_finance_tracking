@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load socialaccount %}
 {% block title %}Login{% endblock %}
 
 {% block content %}
@@ -64,11 +65,6 @@
   color: #6b7280;
 }
 
-/* ---------- FORM SPACING ---------- */
-.auth-card p {
-  margin-bottom: 1.2rem;
-}
-
 /* ---------- LINK ---------- */
 .auth-link a {
   text-decoration: none;
@@ -77,13 +73,6 @@
 
 .auth-link a:hover {
   text-decoration: underline;
-}
-
-/* ---------- MOBILE ---------- */
-@media (max-width: 768px) {
-  .btn-login {
-    width: 100%;
-  }
 }
 </style>
 
@@ -98,25 +87,28 @@
           Sign in to continue managing your finances
         </p>
 
+        <!-- ===== Username / Password Login ===== -->
         <form method="post" novalidate>
           {% csrf_token %}
           {{ form.as_p }}
 
-          <button class="btn btn-login text-white w-100 mt-2">
+          <button type="submit" class="btn btn-login text-white w-100 mt-2">
             🚀 Login
           </button>
         </form>
 
         <p class="mt-4 text-center auth-link">
-          Don’t have an account?Create one
-          
-          <a href="{% url 'accounts:register' %}">Create one</a>
+          Don’t have an account?
+          <a href="{% url 'register' %}">Create one</a>
         </p>
+
         <hr>
 
-        <a href="{% provider_login_url 'google' %}" class="btn btn-danger w-100 mt-2">
-  🔐 Sign in with Google
-</a>
+        <!-- ===== Google Login ===== -->
+        <a href="{% provider_login_url 'google' %}"
+           class="btn btn-danger w-100 mt-2">
+          🔐 Sign in with Google
+        </a>
 
       </div>
     </div>
@@ -125,4 +117,3 @@
 </div>
 
 {% endblock %}
-
