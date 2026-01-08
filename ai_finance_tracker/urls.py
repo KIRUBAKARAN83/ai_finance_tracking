@@ -10,5 +10,6 @@ urlpatterns = [
 
     # Transactions app (namespaced)
     path("", include(("transactions.urls", "transactions"), namespace="transactions")),
+    path("accounts/", include("allauth.urls")),
 
 ]
