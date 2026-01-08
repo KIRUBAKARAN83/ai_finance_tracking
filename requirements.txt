@@ -28,6 +28,11 @@ python-dotenv
 
 django-allauth
 
+requests
+
+
+
+
 
 
 
