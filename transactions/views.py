@@ -49,7 +49,7 @@ from insights.services import generate_daily_insights
 # USER DASHBOARD
 # =========================================================
 
-@login_required
+@login_required(login_url="/accounts/login/")
 def dashboard(request):
     today = date.today()
 
