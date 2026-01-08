@@ -30,6 +30,8 @@ django-allauth
 
 requests
 
+PyJWT
+
 
 
 
