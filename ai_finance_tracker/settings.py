@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     # Project apps
-    "accounts",
+    "accounts.apps.AccountsConfig",
     "transactions",
     "insights",
 ]
