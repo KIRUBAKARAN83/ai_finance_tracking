@@ -74,10 +74,15 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+
+    # ✅ REQUIRED BY DJANGO-ALLAUTH
+    "allauth.account.middleware.AccountMiddleware",
+
     "django.contrib.messages.middleware.MessageMiddleware",
 
-    # Track user activity
+    # optional – safe
     "accounts.middleware.ActiveUserMiddleware",
 ]
 
