@@ -128,6 +128,9 @@ def dashboard(request):
 # =========================================================
 # TRANSACTION CRUD
 # =========================================================
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+
 @login_required
 def add_transaction(request):
     if request.method == "POST":
@@ -136,7 +139,9 @@ def add_transaction(request):
             txn = form.save(commit=False)
             txn.user = request.user
             txn.save()
-            return redirect("dashboard")
+            return redirect("transactions:dashboard")  # use correct namespace
+        else:
+            print(form.errors)  # log validation errors
     else:
         form = TransactionForm()
 
@@ -150,7 +155,7 @@ def edit_transaction(request, pk):
 
     if request.method == "POST" and form.is_valid():
         form.save()
-        return redirect("dashboard")
+        return redirect("transactions:dashboard")
 
     return render(request, "transaction_form.html", {"form": form})
 
@@ -161,7 +166,7 @@ def delete_transaction(request, pk):
 
     if request.method == "POST":
         txn.delete()
-        return redirect("dashboard")
+        return redirect("transactions:dashboard")
 
     return render(request, "confirm_delete.html", {"transaction": txn})
 
@@ -251,7 +256,7 @@ def create_budget(request):
             budget = form.save(commit=False)
             budget.user = request.user
             budget.save()
-            return redirect("dashboard")
+            return redirect("transactions:dashboard")
     else:
         form = BudgetForm()
 
@@ -334,7 +339,7 @@ def ban_user(request, user_id):
     if not user.is_superuser:
         user.is_active = False
         user.save()
-    return redirect("admin_users")
+    return redirect("transactions:admin_users")
 
 
 @staff_member_required
@@ -342,7 +347,7 @@ def unban_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     user.is_active = True
     user.save()
-    return redirect("admin_users")
+    return redirect("transactions:admin_users")
 
 
 @staff_member_required
@@ -350,7 +355,7 @@ def delete_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if request.method == "POST" and not user.is_superuser:
         user.delete()
-    return redirect("admin_users")
+    return redirect("transactions:admin_users")
 
 
 # =========================================================
