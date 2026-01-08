@@ -1,22 +1,35 @@
 from django.urls import path
+
 from .views import (
+    # User
     dashboard,
     add_transaction,
     edit_transaction,
     delete_transaction,
     all_transactions,
+
+    # Charts / API
     chart_data,
+
+    # Budgets
     create_budget,
     budgets_list,
+
+    # Chatbot
     chat_api,
+    chat_stream,
+
+    # Admin
     admin_dashboard,
     admin_users,
     ban_user,
     unban_user,
     delete_user,
+
+    # PWA
     offline,
-    chat_stream,
 )
+
 from .pdf import monthly_pdf
 
 app_name = "transactions"
@@ -34,15 +47,15 @@ urlpatterns = [
     path("budgets/add/", create_budget, name="create_budget"),
 
     # ================= CHAT =================
-    path("chat/", chat_api, name="chat_api"),
+    path("chat/", chat_api, name="chat"),                # UI / normal chat
     path("chat/stream/", chat_stream, name="chat_stream"),
+
+    # ================= API =================
+    path("api/chat/", chat_api, name="chat_api"),        # AJAX chat
+    path("api/chart-data/", chart_data, name="chart_data"),
 
     # ================= PDF =================
     path("pdf/", monthly_pdf, name="monthly_pdf"),
-
-    # ================= API =================
-    path("api/chart-data/", chart_data, name="chart_data"),
-    path("api/chat/", chat_api, name="chat_api"),
 
     # ================= ADMIN =================
     path("admin-dashboard/", admin_dashboard, name="admin_dashboard"),
