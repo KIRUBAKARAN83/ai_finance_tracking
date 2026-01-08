@@ -26,4 +26,7 @@ gunicorn
 
 python-dotenv
 
+pip install django-allauth
+
+
 
