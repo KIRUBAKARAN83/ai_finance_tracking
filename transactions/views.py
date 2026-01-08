@@ -315,7 +315,7 @@ def ban_user(request, user_id):
     if not user.is_superuser:
         user.is_active = False
         user.save()
-    return redirect("admin_users")
+    return redirect("transactions:admin_users")
 
 
 @staff_member_required
@@ -323,7 +323,7 @@ def unban_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     user.is_active = True
     user.save()
-    return redirect("admin_users")
+    return redirect("transactions:admin_users")
 
 
 @staff_member_required
@@ -331,7 +331,7 @@ def delete_user(request, user_id):
     user = get_object_or_404(User, id=user_id)
     if request.method == "POST" and not user.is_superuser:
         user.delete()
-    return redirect("admin_users")
+    return redirect("transactions:admin_users")
 
 
 # =========================================================
