@@ -1,9 +1,12 @@
-from django.urls import path
-from .views import register, profile
 
-app_name = "accounts"   # <-- add this for namespacing
+from django.urls import path, include
+from .views import register, profile
 
 urlpatterns = [
     path("register/", register, name="register"),
+
+    # ✅ ALLAUTH HANDLES LOGIN
+    path("", include("allauth.urls")),
+
     path("profile/", profile, name="profile"),
 ]
