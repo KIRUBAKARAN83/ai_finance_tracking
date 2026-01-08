@@ -2,14 +2,13 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    # Admin
     path("admin/", admin.site.urls),
 
-    # Auth
-  
+    # Authentication (Django + Allauth)
+    path("accounts/", include("allauth.urls")),
     path("accounts/", include("accounts.urls")),
 
-    # Transactions app (namespaced)
-    path("", include(("transactions.urls", "transactions"), namespace="transactions")),
-    path("accounts/", include("allauth.urls")),
-
+    # Transactions app (dashboard at /)
+    path("", include("transactions.urls")),
 ]
