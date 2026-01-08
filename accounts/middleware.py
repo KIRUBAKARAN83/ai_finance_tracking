@@ -1,39 +1,21 @@
-# accounts/middleware.py
 from django.utils.timezone import now
-from django.db import OperationalError, IntegrityError
-from .models import UserActivity
-
+from django.db.utils import OperationalError
 
 class ActiveUserMiddleware:
-    """
-    Safely track last seen users.
-    - No writes for anonymous users
-    - Fail-safe (never crashes requests)
-    - Skips static/admin paths
-    """
-
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
         response = self.get_response(request)
 
-        # ✅ Only after response
-        user = getattr(request, "user", None)
-
-        if (
-            user
-            and user.is_authenticated
-            and not request.path.startswith("/static/")
-            and not request.path.startswith("/admin/")
-        ):
+        if request.user.is_authenticated:
             try:
+                from accounts.models import UserActivity
                 UserActivity.objects.update_or_create(
-                    user=user,
-                    defaults={"last_seen": now()},
+                    user=request.user,
+                    defaults={"last_seen": now()}
                 )
-            except (OperationalError, IntegrityError):
-                # ❌ NEVER break production requests
-                pass
+            except OperationalError:
+                pass  # table not migrated yet
 
         return response
