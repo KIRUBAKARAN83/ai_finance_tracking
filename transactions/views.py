@@ -1,3 +1,4 @@
+# transactions/views.py
 # ===============================
 # Standard library
 # ===============================
@@ -8,7 +9,7 @@ from datetime import date, timedelta
 # Django core
 # ===============================
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
 from django.db.models import Sum, Q
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -45,7 +46,6 @@ from accounts.models import UserActivity
 def dashboard(request):
     # 🔒 IMPORTANT: handle HEAD requests (Render health checks)
     if request.method == "HEAD":
-        from django.http import HttpResponse
         return HttpResponse(status=200)
 
     today = date.today()
@@ -89,12 +89,14 @@ def dashboard(request):
     # ------------------------------
     try:
         health = financial_health_score(request.user)
-    except Exception:
+    except Exception as e:
+        print("HEALTH ERROR:", e)
         health = {}
 
     try:
         comparison = month_comparison(request.user)
-    except Exception:
+    except Exception as e:
+        print("COMPARISON ERROR:", e)
         comparison = {}
 
     # ------------------------------
@@ -102,7 +104,8 @@ def dashboard(request):
     # ------------------------------
     try:
         budgets = budget_progress(request.user)
-    except Exception:
+    except Exception as e:
+        print("BUDGET PROGRESS ERROR:", e)
         budgets = []
 
     # ------------------------------
@@ -127,6 +130,12 @@ def dashboard(request):
         transactions_qs.order_by("-date"), 10
     ).get_page(request.GET.get("page"))
 
+    # Ensure summary and health are dicts before unpacking
+    if not isinstance(summary, dict):
+        summary = {}
+    if not isinstance(health, dict):
+        health = {}
+
     return render(
         request,
         "dashboard.html",
@@ -141,11 +150,10 @@ def dashboard(request):
     )
 
 
-
 # =========================================================
 # TRANSACTION CRUD
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 def add_transaction(request):
     if request.method == "POST":
         form = TransactionForm(request.POST)
@@ -153,32 +161,38 @@ def add_transaction(request):
             txn = form.save(commit=False)
             txn.user = request.user
             txn.save()
-            return redirect("dashboard")
+            return redirect("transactions:dashboard")
+        else:
+            # Log validation errors for debugging
+            print("ADD TRANSACTION FORM ERRORS:", form.errors)
     else:
         form = TransactionForm()
 
     return render(request, "transaction_form.html", {"form": form})
 
 
-@login_required
+@login_required(login_url="accounts:login")
 def edit_transaction(request, pk):
     txn = get_object_or_404(Transaction, pk=pk, user=request.user)
     form = TransactionForm(request.POST or None, instance=txn)
 
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        return redirect("dashboard")
+    if request.method == "POST":
+        if form.is_valid():
+            form.save()
+            return redirect("transactions:dashboard")
+        else:
+            print("EDIT TRANSACTION FORM ERRORS:", form.errors)
 
     return render(request, "transaction_form.html", {"form": form})
 
 
-@login_required
+@login_required(login_url="accounts:login")
 def delete_transaction(request, pk):
     txn = get_object_or_404(Transaction, pk=pk, user=request.user)
 
     if request.method == "POST":
         txn.delete()
-        return redirect("dashboard")
+        return redirect("transactions:dashboard")
 
     return render(request, "confirm_delete.html", {"transaction": txn})
 
@@ -186,7 +200,7 @@ def delete_transaction(request, pk):
 # =========================================================
 # CHART DATA (AJAX)
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 def chart_data(request):
     today = date.today()
 
@@ -214,7 +228,7 @@ def chart_data(request):
 # =========================================================
 # ALL TRANSACTIONS
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 def all_transactions(request):
     query = request.GET.get("q", "").strip()
     start = request.GET.get("start")
@@ -249,7 +263,7 @@ def all_transactions(request):
 # =========================================================
 # BUDGETS
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 def create_budget(request):
     if request.method == "POST":
         form = BudgetForm(request.POST)
@@ -257,7 +271,9 @@ def create_budget(request):
             budget = form.save(commit=False)
             budget.user = request.user
             budget.save()
-            return redirect("dashboard")
+            return redirect("transactions:dashboard")
+        else:
+            print("CREATE BUDGET FORM ERRORS:", form.errors)
     else:
         form = BudgetForm()
 
@@ -271,7 +287,7 @@ def create_budget(request):
     )
 
 
-@login_required
+@login_required(login_url="accounts:login")
 def budgets_list(request):
     budgets = Budget.objects.filter(user=request.user)
     return render(request, "budgets_list.html", {"budgets": budgets})
@@ -280,7 +296,7 @@ def budgets_list(request):
 # =========================================================
 # AI CHAT API
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 @require_POST
 def chat_api(request):
     try:
@@ -305,7 +321,7 @@ def chat_api(request):
 # =========================================================
 # STREAMING CHAT (SAFE)
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 @require_POST
 def chat_stream(request):
     try:
