@@ -48,7 +48,7 @@ INSTALLED_APPS = [
    
 
     # Project apps
-    "accounts.apps.AccountsConfig",
+    "accounts,
     "transactions",
     "insights",
 ]
