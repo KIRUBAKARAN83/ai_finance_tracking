@@ -45,11 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
 
-    # Allauth (Google login)
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
+   
 
     # Project apps
     "accounts.apps.AccountsConfig",
@@ -57,12 +53,7 @@ INSTALLED_APPS = [
     "insights",
 ]
 
-SITE_ID = 1
 
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
-]
 
 # =================================================
 # MIDDLEWARE
@@ -77,8 +68,7 @@ MIDDLEWARE = [
 
     "django.contrib.auth.middleware.AuthenticationMiddleware",
 
-    # REQUIRED for django-allauth
-    "allauth.account.middleware.AccountMiddleware",
+
 
     "django.contrib.messages.middleware.MessageMiddleware",
 
@@ -149,21 +139,7 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "transactions:dashboard"
 LOGOUT_REDIRECT_URL = "login"
 
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "none"
 
-# 🔥 IMPORTANT: avoid Google login crashes
-ACCOUNT_USERNAME_REQUIRED = False
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-
-SOCIALACCOUNT_LOGIN_ON_GET = True
-
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": ["profile", "email"],
-        "AUTH_PARAMS": {"access_type": "online"},
-    }
-}
 
 # =================================================
 # DEFAULT PK
