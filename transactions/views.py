@@ -41,7 +41,7 @@ from accounts.models import UserActivity
 # =========================================================
 # USER DASHBOARD
 # =========================================================
-@login_required(login_url="login")
+@login_required(login_url="accounts:login")
 def dashboard(request):
     # 🔒 IMPORTANT: handle HEAD requests (Render health checks)
     if request.method == "HEAD":
