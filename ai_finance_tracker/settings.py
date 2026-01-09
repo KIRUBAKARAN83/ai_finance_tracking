@@ -45,15 +45,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
 
-   
-
     # Project apps
     "accounts",
     "transactions",
     "insights",
 ]
-
-
 
 # =================================================
 # MIDDLEWARE
@@ -67,9 +63,6 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
 
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-
-
-
     "django.contrib.messages.middleware.MessageMiddleware",
 
     # optional but safe
@@ -133,13 +126,12 @@ STATICFILES_STORAGE = (
 )
 
 # =================================================
-# AUTH / ALLAUTH (CRITICAL FIXES)
+# AUTH / LOGIN CONFIG
 # =================================================
-LOGIN_URL = "login"
+# Use URL names that exist in your accounts/urls.py and transactions/urls.py
+LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "transactions:dashboard"
-LOGOUT_REDIRECT_URL = "login"
-
-
+LOGOUT_REDIRECT_URL = "accounts:login"
 
 # =================================================
 # DEFAULT PK
