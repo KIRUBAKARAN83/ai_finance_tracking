@@ -118,26 +118,26 @@ body.dark #chatbotBox{background:#1e1e1e}
 
 {% if user.is_authenticated %}
 <li class="nav-item">
-<a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'transactions:dashboard' %}">
+<a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:dashboard' %}active{% endif %}" href="{% url 'transactions:dashboard' %}">
 <i class="bi bi-speedometer2"></i> Dashboard
 </a>
 </li>
 
 <li class="nav-item">
-<a class="nav-link {% if request.resolver_match.url_name == 'all_transactions' %}active{% endif %}" href="{% url 'transactions:all_transactions' %}">
+<a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:all_transactions' %}active{% endif %}" href="{% url 'transactions:all_transactions' %}">
 <i class="bi bi-receipt"></i> Transactions
 </a>
 </li>
 
 <li class="nav-item">
-<a class="nav-link {% if request.resolver_match.url_name == 'budgets_list' %}active{% endif %}" href="{% url 'transactions:budgets_list' %}">
+<a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:budgets_list' %}active{% endif %}" href="{% url 'transactions:budgets_list' %}">
 <i class="bi bi-pie-chart"></i> Budgets
 </a>
 </li>
 
 {% if user.is_staff %}
 <li class="nav-item">
-<a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'transactions:admin_dashboard' %}">
+<a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:admin_dashboard' %}active{% endif %}" href="{% url 'transactions:admin_dashboard' %}">
 <i class="bi bi-shield-lock"></i> Admin
 </a>
 </li>
@@ -150,7 +150,7 @@ body.dark #chatbotBox{background:#1e1e1e}
 </li>
 
 <li class="nav-item">
-<form method="post" action="{% url 'logout' %}">
+<form method="post" action="{% url 'accounts:logout' %}">
 {% csrf_token %}
 <button class="btn btn-link nav-link">Logout</button>
 </form>
@@ -172,11 +172,11 @@ body.dark #chatbotBox{background:#1e1e1e}
 
 <!-- ================= MOBILE NAV ================= -->
 <nav class="mobile-nav d-lg-none">
-<a href="{% url 'transactions:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+<a href="{% url 'transactions:dashboard' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:dashboard' %}active{% endif %}">
 <i class="bi bi-speedometer2"></i>Home</a>
-<a href="{% url 'transactions:all_transactions' %}" class="{% if request.resolver_match.url_name == 'all_transactions' %}active{% endif %}">
+<a href="{% url 'transactions:all_transactions' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:all_transactions' %}active{% endif %}">
 <i class="bi bi-receipt"></i>Txns</a>
-<a href="{% url 'transactions:budgets_list' %}" class="{% if request.resolver_match.url_name == 'budgets_list' %}active{% endif %}">
+<a href="{% url 'transactions:budgets_list' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:budgets_list' %}active{% endif %}">
 <i class="bi bi-pie-chart"></i>Budget</a>
 <a href="#" id="installBtnMobile"><i class="bi bi-download"></i>Install</a>
 </nav>
@@ -223,6 +223,22 @@ iBtn.onclick=install;iBtnM.onclick=e=>{e.preventDefault();install();}
 </script>
 
 <script>
+// Helper to read CSRF token from cookie (works reliably)
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
 const cb=document.getElementById("chatbotBtn"),
 bx=document.getElementById("chatbotBox"),
 cl=document.getElementById("chatClose"),
@@ -242,14 +258,22 @@ fetch("{% url 'transactions:chat_api' %}",{
 method:"POST",
 headers:{
 "Content-Type":"application/json",
-"X-CSRFToken":"{{ csrf_token }}"
+"X-CSRFToken": getCookie('csrftoken')
 },
 body:JSON.stringify({message:m})
 })
-.then(r=>r.json())
+.then(r=>{
+  if(!r.ok) throw new Error('Network response was not ok');
+  return r.json();
+})
 .then(d=>{
 ms.innerHTML+=`<div class="chat-bot">🤖 ${d.reply}</div>`;
 ms.scrollTop=ms.scrollHeight;
+})
+.catch(err=>{
+  console.error("Chat error:", err);
+  ms.innerHTML+=`<div class="chat-bot">⚠️ Error contacting assistant</div>`;
+  ms.scrollTop=ms.scrollHeight;
 });
 };
 </script>
