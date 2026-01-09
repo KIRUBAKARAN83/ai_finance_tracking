@@ -6,7 +6,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # Authentication (Django + Allauth)
-    path("accounts/", include("allauth.urls")),
+   
     path("accounts/", include("accounts.urls")),
 
     # Transactions app (dashboard at /)
