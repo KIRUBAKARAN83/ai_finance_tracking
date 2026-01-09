@@ -11,5 +11,6 @@ urlpatterns = [
      path("accounts/", include("django.contrib.auth.urls")),
 
     # Transactions app (dashboard at /)
-    path("", include("transactions.urls")),
+    path("", include(("transactions.urls", "transactions"), namespace="transactions")),
+
 ]
