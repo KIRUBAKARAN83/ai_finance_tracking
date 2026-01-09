@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load socialaccount %}
 {% block title %}Login{% endblock %}
 
 {% block content %}
@@ -99,7 +98,7 @@
 
         <p class="mt-4 text-center auth-link">
           Don’t have an account?
-          <a href="{% url 'registration:register' %}">Create one</a>
+         <a href="{% url 'accounts:register' %}">Create one</a>
         </p>
 
         <hr>
