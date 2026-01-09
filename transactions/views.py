@@ -17,6 +17,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
 from django.utils.timezone import now
+from django.contrib.auth import views as auth_views
+from django.http import HttpResponseServerError
+import traceback
 
 # ===============================
 # Local app imports
@@ -400,3 +403,15 @@ def delete_user(request, user_id):
 # =========================================================
 def offline(request):
     return render(request, "offline.html")
+# accounts/views.py (temporary debug view)
+
+
+class DebugLoginView(auth_views.LoginView):
+    template_name = "login.html"
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Exception:
+            traceback.print_exc()   # prints to Render logs
+            return HttpResponseServerError("Login view error — check logs")
