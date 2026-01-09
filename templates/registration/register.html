@@ -161,7 +161,7 @@
 
         <p class="mt-4 text-center">
           Already have an account?
-          <a href="{% url 'login' %}">Login</a>
+          <a href="{% url 'accounts:login' %}">Login</a>
         </p>
 
       </div>
@@ -173,7 +173,11 @@
 <script>
 /* ---------- PASSWORD TOGGLE ---------- */
 function togglePassword(el) {
-  const input = el.previousElementSibling;
+  // find the input inside the same wrapper reliably
+  const wrapper = el.closest('.password-wrapper');
+  if (!wrapper) return;
+  const input = wrapper.querySelector('input');
+  if (!input) return;
   if (input.type === "password") {
     input.type = "text";
     el.innerText = "🙈 Hide";
