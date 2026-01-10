@@ -19,14 +19,11 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv("DEBUG", "False").lower() in {"1", "true", "yes"}
 
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    ".onrender.com",
-    ".railway.app",
-]
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    ".onrender.com,localhost,127.0.0.1"
+).split(",")
 
-# Trusted origins for CSRF (keep wildcard for onrender)
 CSRF_TRUSTED_ORIGINS = [
     "https://*.onrender.com",
 ]
@@ -54,8 +51,6 @@ INSTALLED_APPS = [
     "insights",
 ]
 
-
-
 # =================================================
 # MIDDLEWARE
 # =================================================
@@ -70,7 +65,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
 
-    # Active user tracker (defensive implementation recommended)
+    # optional but safe
     "accounts.middleware.ActiveUserMiddleware",
 ]
 
@@ -107,8 +102,8 @@ if not DATABASE_URL:
 DATABASES = {
     "default": dj_database_url.config(
         default=DATABASE_URL,
-        conn_max_age=int(os.getenv("DB_CONN_MAX_AGE", 600)),
-        ssl_require=os.getenv("DB_SSL_REQUIRE", "True").lower() in {"1", "true", "yes"},
+        conn_max_age=600,
+        ssl_require=True,
     )
 }
 
@@ -126,45 +121,19 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 
 # =================================================
 # AUTH / LOGIN CONFIG
 # =================================================
-LOGIN_URL = "login"
+# Use URL names that exist in your accounts/urls.py and transactions/urls.py
+LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "transactions:dashboard"
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "accounts:login"
 
 # =================================================
 # DEFAULT PK
 # =================================================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# =================================================
-# LOGGING (prints errors to stdout so Render shows tracebacks)
-# =================================================
-import logging.config
-
-LOG_LEVEL = "DEBUG" if DEBUG else "ERROR"
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "standard": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "standard",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": LOG_LEVEL,
-    },
-    "loggers": {
-        # reduce noise from some libraries
-        "django.db.backends": {"level": "ERROR", "handlers": ["console"], "propagate": False},
-    },
-}
