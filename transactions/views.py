@@ -301,3 +301,20 @@ def delete_user(request, user_id):
 # =========================================================
 def offline(request):
     return render(request, "offline.html")
+
+@login_required
+def chat_stream(request):
+    data = json.loads(request.body)
+    message = data.get("message", "").strip()
+
+    def event_stream():
+        try:
+            for token in finance_chat_stream(request.user, message):
+                yield token
+        except Exception:
+            yield "\n⚠️ AI error"
+
+    return StreamingHttpResponse(
+        event_stream(),
+        content_type="text/plain"
+    )
