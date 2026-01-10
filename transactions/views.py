@@ -1,3 +1,4 @@
+# transactions/views.py
 # ===============================
 # Standard library
 # ===============================
@@ -8,7 +9,7 @@ from datetime import date, timedelta
 # Django core
 # ===============================
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
 from django.db.models import Sum, Q
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -33,15 +34,23 @@ from insights.budget_alerts import budget_alerts
 from insights.month_compare import month_comparison
 from insights.budget_progress import budget_progress
 from insights.budget_suggest import suggest_budgets
-from insights.chat_engine import finance_chat
+from insights.chat_engine import finance_chat, finance_chat_stream
+
+# =========================================================
+# Module config
+# =========================================================
+app_name = "transactions"
 
 
 # =========================================================
 # USER DASHBOARD
-app_name="transactions"
 # =========================================================
-@login_required(login_url="login")
+@login_required(login_url="accounts:login")
 def dashboard(request):
+    # Health checks (HEAD) should return 200 quickly
+    if request.method == "HEAD":
+        return HttpResponse(status=200)
+
     today = date.today()
 
     # ---- SAFE DEFAULTS ----
@@ -60,9 +69,11 @@ def dashboard(request):
         comparison = month_comparison(request.user) or {}
         budgets = budget_progress(request.user) or []
 
+        # Merge rule-based alerts into summary insights
         summary["insights"].extend(alerts)
 
     except Exception as e:
+        # Keep dashboard resilient; log to stdout for Render logs
         print("DASHBOARD ERROR:", e)
 
     # ---- TRANSACTIONS ----
@@ -80,16 +91,16 @@ def dashboard(request):
             | Q(transaction_type__icontains=query)
         )
 
-    transactions = Paginator(
-        transactions_qs.order_by("-date"), 10
-    ).get_page(request.GET.get("page"))
+    transactions = Paginator(transactions_qs.order_by("-date"), 10).get_page(
+        request.GET.get("page")
+    )
 
     return render(
         request,
         "dashboard.html",
         {
             **summary,
-            **health,
+            **(health if isinstance(health, dict) else {}),
             "alerts": alerts,
             "comparison": comparison,
             "budgets": budgets,
@@ -102,68 +113,72 @@ def dashboard(request):
 # =========================================================
 # TRANSACTION CRUD
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 def add_transaction(request):
     form = TransactionForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         txn = form.save(commit=False)
         txn.user = request.user
         txn.save()
-        return redirect("dashboard")
+        return redirect("transactions:dashboard")
     return render(request, "transaction_form.html", {"form": form})
 
 
-@login_required
+@login_required(login_url="accounts:login")
 def edit_transaction(request, pk):
     txn = get_object_or_404(Transaction, pk=pk, user=request.user)
     form = TransactionForm(request.POST or None, instance=txn)
     if request.method == "POST" and form.is_valid():
         form.save()
-        return redirect("dashboard")
+        return redirect("transactions:dashboard")
     return render(request, "transaction_form.html", {"form": form})
 
 
-@login_required
+@login_required(login_url="accounts:login")
 def delete_transaction(request, pk):
     txn = get_object_or_404(Transaction, pk=pk, user=request.user)
     if request.method == "POST":
         txn.delete()
-        return redirect("dashboard")
+        return redirect("transactions:dashboard")
     return render(request, "confirm_delete.html", {"transaction": txn})
 
 
 # =========================================================
 # CHART DATA (AJAX)
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 def chart_data(request):
     today = date.today()
 
-    income = Transaction.objects.filter(
-        user=request.user,
-        transaction_type="INCOME",
-        date__month=today.month,
-        date__year=today.year,
-    ).aggregate(total=Sum("amount"))["total"] or 0
+    income = (
+        Transaction.objects.filter(
+            user=request.user,
+            transaction_type="INCOME",
+            date__month=today.month,
+            date__year=today.year,
+        ).aggregate(total=Sum("amount"))["total"]
+        or 0
+    )
 
-    expense = Transaction.objects.filter(
-        user=request.user,
-        transaction_type="EXPENSE",
-        date__month=today.month,
-        date__year=today.year,
-    ).aggregate(total=Sum("amount"))["total"] or 0
+    expense = (
+        Transaction.objects.filter(
+            user=request.user,
+            transaction_type="EXPENSE",
+            date__month=today.month,
+            date__year=today.year,
+        ).aggregate(total=Sum("amount"))["total"]
+        or 0
+    )
 
-    return JsonResponse({
-        "income": float(income),
-        "expense": float(expense),
-        "savings": float(income - expense),
-    })
+    return JsonResponse(
+        {"income": float(income), "expense": float(expense), "savings": float(income - expense)}
+    )
 
 
 # =========================================================
 # ALL TRANSACTIONS
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 def all_transactions(request):
     qs = Transaction.objects.filter(user=request.user)
 
@@ -175,47 +190,47 @@ def all_transactions(request):
             | Q(transaction_type__icontains=query)
         )
 
-    if request.GET.get("start"):
-        qs = qs.filter(date__gte=request.GET["start"])
-    if request.GET.get("end"):
-        qs = qs.filter(date__lte=request.GET["end"])
+    start = request.GET.get("start")
+    end = request.GET.get("end")
+    if start:
+        qs = qs.filter(date__gte=start)
+    if end:
+        qs = qs.filter(date__lte=end)
 
     transactions = Paginator(qs.order_by("-date"), 15).get_page(request.GET.get("page"))
 
-    return render(request, "all_transaction.html", {
-        "transactions": transactions,
-        "query": query,
-    })
+    return render(request, "all_transaction.html", {"transactions": transactions, "query": query, "start_date": start, "end_date": end})
 
 
 # =========================================================
 # BUDGETS
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 def create_budget(request):
     form = BudgetForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         budget = form.save(commit=False)
         budget.user = request.user
         budget.save()
-        return redirect("dashboard")
-    return render(request, "budget_form.html", {
-        "form": form,
-        "suggestions": suggest_budgets(request.user),
-    })
+        return redirect("transactions:dashboard")
+    # suggestions may call external logic; guard it
+    try:
+        suggestions = suggest_budgets(request.user)
+    except Exception as e:
+        print("BUDGET SUGGEST ERROR:", e)
+        suggestions = []
+    return render(request, "budget_form.html", {"form": form, "suggestions": suggestions})
 
 
-@login_required
+@login_required(login_url="accounts:login")
 def budgets_list(request):
-    return render(request, "budgets_list.html", {
-        "budgets": Budget.objects.filter(user=request.user)
-    })
+    return render(request, "budgets_list.html", {"budgets": Budget.objects.filter(user=request.user)})
 
 
 # =========================================================
 # AI CHATBOT API (HARDENED)
 # =========================================================
-@login_required
+@login_required(login_url="accounts:login")
 @require_POST
 def chat_api(request):
     try:
@@ -233,10 +248,31 @@ def chat_api(request):
 
     except Exception as e:
         print("CHAT ERROR:", e)
-        return JsonResponse(
-            {"reply": "⚠️ AI service temporarily unavailable."},
-            status=200,  # IMPORTANT: no 500 to frontend
-        )
+        # Return 200 so frontend can show a friendly message instead of treating as server error
+        return JsonResponse({"reply": "⚠️ AI service temporarily unavailable."}, status=200)
+
+
+# =========================================================
+# STREAMING CHAT (SAFE)
+# =========================================================
+@login_required(login_url="accounts:login")
+@require_POST
+def chat_stream(request):
+    try:
+        data = json.loads(request.body or "{}")
+        message = (data.get("message") or "").strip()
+    except Exception:
+        message = ""
+
+    def event_stream():
+        try:
+            for token in finance_chat_stream(request.user, message):
+                yield token
+        except Exception as e:
+            print("CHAT STREAM ERROR:", e)
+            yield "\n⚠️ AI error"
+
+    return StreamingHttpResponse(event_stream(), content_type="text/plain")
 
 
 # =========================================================
@@ -245,30 +281,29 @@ def chat_api(request):
 @staff_member_required
 def admin_dashboard(request):
     try:
-        online_users = UserActivity.objects.filter(
-            last_seen__gte=now() - timedelta(minutes=5)
-        ).count()
+        online_users = UserActivity.objects.filter(last_seen__gte=now() - timedelta(minutes=5)).count()
     except Exception:
         online_users = 0
 
-    return render(request, "admin_dashboard.html", {
-        "total_users": User.objects.count(),
-        "online_users": online_users,
-        "total_income": Transaction.objects.filter(
-            transaction_type="INCOME"
-        ).aggregate(total=Sum("amount"))["total"] or 0,
-        "total_expense": Transaction.objects.filter(
-            transaction_type="EXPENSE"
-        ).aggregate(total=Sum("amount"))["total"] or 0,
-        "total_transactions": Transaction.objects.count(),
-    })
+    total_income = Transaction.objects.filter(transaction_type="INCOME").aggregate(total=Sum("amount"))["total"] or 0
+    total_expense = Transaction.objects.filter(transaction_type="EXPENSE").aggregate(total=Sum("amount"))["total"] or 0
+
+    return render(
+        request,
+        "admin_dashboard.html",
+        {
+            "total_users": User.objects.count(),
+            "online_users": online_users,
+            "total_income": total_income,
+            "total_expense": total_expense,
+            "total_transactions": Transaction.objects.count(),
+        },
+    )
 
 
 @staff_member_required
 def admin_users(request):
-    return render(request, "admin_users.html", {
-        "users": User.objects.all().order_by("-date_joined")
-    })
+    return render(request, "admin_users.html", {"users": User.objects.all().order_by("-date_joined")})
 
 
 @staff_member_required
@@ -301,20 +336,3 @@ def delete_user(request, user_id):
 # =========================================================
 def offline(request):
     return render(request, "offline.html")
-
-@login_required
-def chat_stream(request):
-    data = json.loads(request.body)
-    message = data.get("message", "").strip()
-
-    def event_stream():
-        try:
-            for token in finance_chat_stream(request.user, message):
-                yield token
-        except Exception:
-            yield "\n⚠️ AI error"
-
-    return StreamingHttpResponse(
-        event_stream(),
-        content_type="text/plain"
-    )
