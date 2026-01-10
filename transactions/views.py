@@ -45,7 +45,7 @@ app_name = "transactions"
 # =========================================================
 # USER DASHBOARD
 # =========================================================
-@login_required(login_url="accounts:login")
+@login_required(login_url="login")
 def dashboard(request):
     # Health checks (HEAD) should return 200 quickly
     if request.method == "HEAD":
