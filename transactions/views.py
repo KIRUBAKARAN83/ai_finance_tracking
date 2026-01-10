@@ -43,8 +43,7 @@ from accounts.models import UserActivity
 from insights.models import Insight
 from insights.services import generate_daily_insights
 
-app="transactions"
-
+app_name = "transactionss"
 # =========================================================
 # USER DASHBOARD
 # =========================================================
