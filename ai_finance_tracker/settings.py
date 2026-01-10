@@ -19,9 +19,12 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv("DEBUG", "False").lower() in {"1", "true", "yes"}
 
-# Parse ALLOWED_HOSTS robustly (trim whitespace, ignore empty)
-_raw_hosts = os.getenv("ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1")
-ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",") if h.strip()]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".onrender.com",
+    ".railway.app",
+]
 
 # Trusted origins for CSRF (keep wildcard for onrender)
 CSRF_TRUSTED_ORIGINS = [
@@ -51,8 +54,7 @@ INSTALLED_APPS = [
     "insights",
 ]
 
-# Required by django.contrib.sites
-SITE_ID = int(os.getenv("SITE_ID", 1))
+
 
 # =================================================
 # MIDDLEWARE
@@ -129,9 +131,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # =================================================
 # AUTH / LOGIN CONFIG
 # =================================================
-LOGIN_URL = "accounts:login"
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "transactions:dashboard"
-LOGOUT_REDIRECT_URL = "accounts:login"
+LOGOUT_REDIRECT_URL = "login"
 
 # =================================================
 # DEFAULT PK
