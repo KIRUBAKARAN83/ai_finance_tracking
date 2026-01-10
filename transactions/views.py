@@ -37,12 +37,13 @@ from insights.chat_engine import finance_chat, finance_chat_stream
 from insights.models import Insight
 
 from accounts.models import UserActivity
+app_name = "transactions"
 
 
 # =========================================================
 # USER DASHBOARD
 # =========================================================
-@login_required(login_url="accounts:login")
+@login_required(login_url="login")
 def dashboard(request):
     # 🔒 IMPORTANT: handle HEAD requests (Render health checks)
     if request.method == "HEAD":
