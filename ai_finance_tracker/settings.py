@@ -133,9 +133,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # AUTH / LOGIN CONFIG
 # =================================================
 # Use namespaced URL names that match accounts/urls.py
-LOGIN_URL = "accounts:login"
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "transactions:dashboard"
-LOGOUT_REDIRECT_URL = "accounts:login"
+LOGOUT_REDIRECT_URL = "login"
 
 # =================================================
 # DEFAULT PK
@@ -145,27 +145,3 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # =================================================
 # LOGGING (prints errors to stdout so Render shows tracebacks)
 # =================================================
-import logging.config
-
-LOG_LEVEL = "DEBUG" if DEBUG else "ERROR"
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "standard": {"format": "%(levelname)s %(asctime)s %(name)s %(message)s"},
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "standard",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": LOG_LEVEL,
-    },
-    "loggers": {
-        "django.db.backends": {"level": "ERROR", "handlers": ["console"], "propagate": False},
-    },
-}
