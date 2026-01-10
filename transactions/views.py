@@ -124,7 +124,7 @@ def add_transaction(request):
     return render(request, "transaction_form.html", {"form": form})
 
 
-@login_required)
+@login_required
 def edit_transaction(request, pk):
     txn = get_object_or_404(Transaction, pk=pk, user=request.user)
     form = TransactionForm(request.POST or None, instance=txn)
