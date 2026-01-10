@@ -45,7 +45,7 @@ app_name = "transactions"
 # =========================================================
 # USER DASHBOARD
 # =========================================================
-@login_required(login_url="login")
+@login_required
 def dashboard(request):
     # Health checks (HEAD) should return 200 quickly
     if request.method == "HEAD":
@@ -113,7 +113,7 @@ def dashboard(request):
 # =========================================================
 # TRANSACTION CRUD
 # =========================================================
-@login_required(login_url="accounts:login")
+@login_required
 def add_transaction(request):
     form = TransactionForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -124,7 +124,7 @@ def add_transaction(request):
     return render(request, "transaction_form.html", {"form": form})
 
 
-@login_required(login_url="accounts:login")
+@login_required)
 def edit_transaction(request, pk):
     txn = get_object_or_404(Transaction, pk=pk, user=request.user)
     form = TransactionForm(request.POST or None, instance=txn)
@@ -134,7 +134,7 @@ def edit_transaction(request, pk):
     return render(request, "transaction_form.html", {"form": form})
 
 
-@login_required(login_url="accounts:login")
+@login_required
 def delete_transaction(request, pk):
     txn = get_object_or_404(Transaction, pk=pk, user=request.user)
     if request.method == "POST":
@@ -146,7 +146,7 @@ def delete_transaction(request, pk):
 # =========================================================
 # CHART DATA (AJAX)
 # =========================================================
-@login_required(login_url="accounts:login")
+@login_required
 def chart_data(request):
     today = date.today()
 
@@ -178,7 +178,7 @@ def chart_data(request):
 # =========================================================
 # ALL TRANSACTIONS
 # =========================================================
-@login_required(login_url="accounts:login")
+@login_required
 def all_transactions(request):
     qs = Transaction.objects.filter(user=request.user)
 
@@ -205,7 +205,7 @@ def all_transactions(request):
 # =========================================================
 # BUDGETS
 # =========================================================
-@login_required(login_url="accounts:login")
+@login_required
 def create_budget(request):
     form = BudgetForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -222,7 +222,7 @@ def create_budget(request):
     return render(request, "budget_form.html", {"form": form, "suggestions": suggestions})
 
 
-@login_required(login_url="accounts:login")
+@login_required
 def budgets_list(request):
     return render(request, "budgets_list.html", {"budgets": Budget.objects.filter(user=request.user)})
 
@@ -230,7 +230,7 @@ def budgets_list(request):
 # =========================================================
 # AI CHATBOT API (HARDENED)
 # =========================================================
-@login_required(login_url="accounts:login")
+@login_required
 @require_POST
 def chat_api(request):
     try:
@@ -255,7 +255,7 @@ def chat_api(request):
 # =========================================================
 # STREAMING CHAT (SAFE)
 # =========================================================
-@login_required(login_url="accounts:login")
+@login_required
 @require_POST
 def chat_stream(request):
     try:
