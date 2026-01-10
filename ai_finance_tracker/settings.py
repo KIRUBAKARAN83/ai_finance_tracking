@@ -133,9 +133,9 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # AUTH / LOGIN CONFIG
 # =================================================
 # Use namespaced URL names that match accounts/urls.py
-LOGIN_URL = "login"
+LOGIN_URL = "templates\registration\login.html"
 LOGIN_REDIRECT_URL = "transactions:dashboard"
-LOGOUT_REDIRECT_URL = "login"
+LOGOUT_REDIRECT_URL = "templates\registration\login.html"
 
 # =================================================
 # DEFAULT PK
