@@ -129,9 +129,9 @@ STATICFILES_STORAGE = (
 # AUTH / LOGIN CONFIG
 # =================================================
 # Use URL names that exist in your accounts/urls.py and transactions/urls.py
-LOGIN_URL = "accounts:login"
+LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "transactions:dashboard"
-LOGOUT_REDIRECT_URL = "accounts:login"
+LOGOUT_REDIRECT_URL = "login"
 
 # =================================================
 # DEFAULT PK
