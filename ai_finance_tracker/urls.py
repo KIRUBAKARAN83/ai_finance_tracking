@@ -1,17 +1,18 @@
 # ai_finance_tracker/urls.py
+
 from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    # Admin site
+    # Admin
     path("admin/", admin.site.urls),
 
-    # Accounts: include your custom app URLs
-    path("accounts/", include(("accounts.urls", "accounts"), namespace="accounts")),
+    # Accounts app (register, profile, etc.)
+    path("accounts/", include("accounts.urls")),
 
-    # Django’s built-in auth views (login, logout, password reset, etc.)
+    # Django built-in auth (login, logout, password reset)
     path("accounts/", include("django.contrib.auth.urls")),
 
-    # Transactions app (dashboard at /)
+    # Main app (dashboard at /)
     path("", include(("transactions.urls", "transactions"), namespace="transactions")),
 ]
