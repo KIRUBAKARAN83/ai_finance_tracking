@@ -127,9 +127,14 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = (
-    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-)
+# Where your source static files live during development
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Use manifest storage in production for hashed filenames; use simple storage in DEBUG
+if not DEBUG:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+else:
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # =================================================
 # AUTH
