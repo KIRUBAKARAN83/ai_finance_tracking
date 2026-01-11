@@ -3,7 +3,6 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-
 <style>
 .page-enter {
   animation: pageFade 0.6s ease forwards;
@@ -40,9 +39,22 @@
           Sign in to continue
         </p>
 
-        <form method="post">
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            Please check your username and password.
+          </div>
+        {% endif %}
+
+        <form method="post" novalidate>
           {% csrf_token %}
-          {{ form.as_p }}
+          <div class="mb-3">
+            <label for="id_username">Username</label>
+            {{ form.username }}
+          </div>
+          <div class="mb-3">
+            <label for="id_password">Password</label>
+            {{ form.password }}
+          </div>
 
           <button type="submit" class="btn btn-login text-white w-100 mt-2">
             Login
@@ -58,5 +70,4 @@
     </div>
   </div>
 </div>
-
 {% endblock %}
