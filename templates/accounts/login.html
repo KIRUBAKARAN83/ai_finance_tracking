@@ -76,38 +76,31 @@
 }
 </style>
 
-<div class="row justify-content-center page-enter">
+<div class="row justify-content-center">
   <div class="col-md-5">
+    <div class="card shadow-lg p-4">
 
-    <div class="card shadow-lg auth-card">
-      <div class="card-body p-4">
+      <h4 class="text-center mb-3">🔐 Login</h4>
 
-        <h4 class="auth-title text-center mb-1">🔐 Welcome Back</h4>
-        <p class="auth-subtitle text-center mb-4">
-          Sign in to continue managing your finances
-        </p>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
 
-        <!-- ===== Username / Password Login ===== -->
-        <form method="post" novalidate>
-          {% csrf_token %}
-          {{ form.as_p }}
+        <button type="submit" class="btn btn-primary w-100">
+          Login
+        </button>
+      </form>
 
-          <button type="submit" class="btn btn-login text-white w-100 mt-2">
-            🚀 Login
-          </button>
-        </form>
+      <p class="text-center mt-3">
+        Don’t have an account?
+        <a href="{% url 'register' %}">Register</a>
+      </p>
 
-        <p class="mt-4 text-center auth-link">
-          Don’t have an account?
-          <a href="{% url 'accounts:register' %}">Create one</a>
-        </p>
-
-        <hr>
-
-      </div>
     </div>
-
   </div>
 </div>
+
+{% endblock %}
+
 
 {% endblock %}
