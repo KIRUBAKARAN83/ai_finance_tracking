@@ -47,6 +47,8 @@ except Exception as e:
     month_comparison = budget_progress = suggest_budgets = None
     finance_chat = finance_chat_stream = None
 
+app_name="transactions"
+
 
 # =========================================================
 # DASHBOARD (HARDENED)
