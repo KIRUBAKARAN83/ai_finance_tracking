@@ -1,6 +1,12 @@
 # accounts/middleware.py
-from django.utils import timezone
-from .models import UserActivity
+from django.utils.timezone import now
+from django.db.utils import OperationalError, ProgrammingError
+
+try:
+    from .models import UserActivity
+except Exception:
+    UserActivity = None
+
 
 class ActiveUserMiddleware:
     def __init__(self, get_response):
@@ -9,11 +15,18 @@ class ActiveUserMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
 
-        user = getattr(request, "user", None)
-        if user and user.is_authenticated:
-            UserActivity.objects.update_or_create(
-                user=user,
-                defaults={"last_seen": timezone.now()}
-            )
+        if (
+            UserActivity
+            and hasattr(request, "user")
+            and request.user.is_authenticated
+        ):
+            try:
+                UserActivity.objects.update_or_create(
+                    user=request.user,
+                    defaults={"last_seen": now()},
+                )
+            except (OperationalError, ProgrammingError) as e:
+                # Happens on Render when table/migrations are missing
+                print("ActiveUserMiddleware skipped:", e)
 
         return response
