@@ -1,10 +1,7 @@
-
-
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
 
 {% block content %}
-
 <style>
 /* ---------- PAGE ANIMATION ---------- */
 .page-enter {
@@ -114,7 +111,6 @@
 
 <div class="row justify-content-center page-enter">
   <div class="col-md-5">
-
     <!-- SHAKE triggers only when form has errors -->
     <div class="card shadow-lg auth-card {% if form.errors %}shake{% endif %}">
       <div class="card-body p-4">
@@ -124,34 +120,29 @@
           Start tracking your finances intelligently
         </p>
 
+        {% if form.errors %}
+          <div class="alert alert-danger">
+            Please correct the errors below.
+          </div>
+        {% endif %}
+
         <form method="post" novalidate>
           {% csrf_token %}
-
           {% for field in form %}
             <div class="mb-3 {% if 'password' in field.name %}password-wrapper{% endif %}">
-
-              <label class="form-label fw-semibold">
-                {{ field.label }}
-              </label>
-
+              <label class="form-label fw-semibold">{{ field.label }}</label>
               {{ field }}
 
               {% if field.help_text %}
-                <div class="help-text">
-                  {{ field.help_text|safe }}
-                </div>
+                <div class="help-text">{{ field.help_text|safe }}</div>
               {% endif %}
 
               {% for error in field.errors %}
-                <div class="error-text">
-                  {{ error }}
-                </div>
+                <div class="error-text">{{ error }}</div>
               {% endfor %}
 
               {% if 'password' in field.name %}
-                <span class="toggle-password" onclick="togglePassword(this)">
-                  👁 Show
-                </span>
+                <span class="toggle-password" onclick="togglePassword(this)">👁 Show</span>
               {% endif %}
             </div>
           {% endfor %}
@@ -168,14 +159,11 @@
 
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-/* ---------- PASSWORD TOGGLE ---------- */
 function togglePassword(el) {
-  // find the input inside the same wrapper reliably
   const wrapper = el.closest('.password-wrapper');
   if (!wrapper) return;
   const input = wrapper.querySelector('input');
@@ -189,16 +177,13 @@ function togglePassword(el) {
   }
 }
 
-/* ---------- SUCCESS ANIMATION ---------- */
 document.querySelectorAll("form").forEach(form => {
   form.addEventListener("submit", function () {
     const card = form.closest(".card");
     const btn = form.querySelector("button[type='submit']");
-
     if (btn) btn.classList.add("btn-loading");
     if (card) card.classList.add("form-success");
   });
 });
 </script>
-
 {% endblock %}
