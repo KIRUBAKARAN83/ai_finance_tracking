@@ -23,37 +23,43 @@ from django.utils.timezone import now
 # ===============================
 from .models import Transaction, Budget
 from .forms import TransactionForm, BudgetForm
-from accounts.models import UserActivity
+
+# Optional models (may not exist yet after DB reset)
+try:
+    from accounts.models import UserActivity
+except Exception:
+    UserActivity = None
 
 # ===============================
-# Insights / AI services
+# Insights / AI services (OPTIONAL)
 # ===============================
-from insights.services import monthly_summary
-from insights.health_score import financial_health_score
-from insights.budget_alerts import budget_alerts
-from insights.month_compare import month_comparison
-from insights.budget_progress import budget_progress
-from insights.budget_suggest import suggest_budgets
-from insights.chat_engine import finance_chat, finance_chat_stream
+try:
+    from insights.services import monthly_summary
+    from insights.health_score import financial_health_score
+    from insights.budget_alerts import budget_alerts
+    from insights.month_compare import month_comparison
+    from insights.budget_progress import budget_progress
+    from insights.budget_suggest import suggest_budgets
+    from insights.chat_engine import finance_chat, finance_chat_stream
+except Exception as e:
+    print("INSIGHTS IMPORT ERROR:", e)
+    monthly_summary = budget_alerts = financial_health_score = None
+    month_comparison = budget_progress = suggest_budgets = None
+    finance_chat = finance_chat_stream = None
+
 
 # =========================================================
-# Module config
-# =========================================================
-app_name = "transactions"
-
-
-# =========================================================
-# USER DASHBOARD
+# DASHBOARD (HARDENED)
 # =========================================================
 @login_required
 def dashboard(request):
-    # Health checks (HEAD) should return 200 quickly
+    # Render health check (HEAD /)
     if request.method == "HEAD":
         return HttpResponse(status=200)
 
     today = date.today()
 
-    # ---- SAFE DEFAULTS ----
+    # Safe defaults
     summary = {"income": 0, "expense": 0, "savings": 0, "insights": []}
     alerts = []
     health = {}
@@ -61,37 +67,42 @@ def dashboard(request):
     budgets = []
 
     try:
-        summary = monthly_summary(request.user, today.month, today.year) or summary
-        summary.setdefault("insights", [])
+        if monthly_summary:
+            summary = monthly_summary(request.user, today.month, today.year) or summary
+            summary.setdefault("insights", [])
 
-        alerts = budget_alerts(request.user) or []
-        health = financial_health_score(request.user) or {}
-        comparison = month_comparison(request.user) or {}
-        budgets = budget_progress(request.user) or []
+        if budget_alerts:
+            alerts = budget_alerts(request.user) or []
+            summary["insights"].extend(alerts)
 
-        # Merge rule-based alerts into summary insights
-        summary["insights"].extend(alerts)
+        if financial_health_score:
+            health = financial_health_score(request.user) or {}
+
+        if month_comparison:
+            comparison = month_comparison(request.user) or {}
+
+        if budget_progress:
+            budgets = budget_progress(request.user) or []
 
     except Exception as e:
-        # Keep dashboard resilient; log to stdout for Render logs
         print("DASHBOARD ERROR:", e)
 
-    # ---- TRANSACTIONS ----
-    query = request.GET.get("q", "").strip()
-    transactions_qs = Transaction.objects.filter(
+    # Transactions list
+    qs = Transaction.objects.filter(
         user=request.user,
         date__month=today.month,
         date__year=today.year,
     )
 
+    query = request.GET.get("q", "").strip()
     if query:
-        transactions_qs = transactions_qs.filter(
+        qs = qs.filter(
             Q(category__icontains=query)
             | Q(note__icontains=query)
             | Q(transaction_type__icontains=query)
         )
 
-    transactions = Paginator(transactions_qs.order_by("-date"), 10).get_page(
+    transactions = Paginator(qs.order_by("-date"), 10).get_page(
         request.GET.get("page")
     )
 
@@ -100,7 +111,7 @@ def dashboard(request):
         "dashboard.html",
         {
             **summary,
-            **(health if isinstance(health, dict) else {}),
+            **health,
             "alerts": alerts,
             "comparison": comparison,
             "budgets": budgets,
@@ -144,7 +155,7 @@ def delete_transaction(request, pk):
 
 
 # =========================================================
-# CHART DATA (AJAX)
+# CHART DATA
 # =========================================================
 @login_required
 def chart_data(request):
@@ -171,7 +182,11 @@ def chart_data(request):
     )
 
     return JsonResponse(
-        {"income": float(income), "expense": float(expense), "savings": float(income - expense)}
+        {
+            "income": float(income),
+            "expense": float(expense),
+            "savings": float(income - expense),
+        }
     )
 
 
@@ -197,9 +212,20 @@ def all_transactions(request):
     if end:
         qs = qs.filter(date__lte=end)
 
-    transactions = Paginator(qs.order_by("-date"), 15).get_page(request.GET.get("page"))
+    transactions = Paginator(qs.order_by("-date"), 15).get_page(
+        request.GET.get("page")
+    )
 
-    return render(request, "all_transaction.html", {"transactions": transactions, "query": query, "start_date": start, "end_date": end})
+    return render(
+        request,
+        "all_transaction.html",
+        {
+            "transactions": transactions,
+            "query": query,
+            "start_date": start,
+            "end_date": end,
+        },
+    )
 
 
 # =========================================================
@@ -213,22 +239,31 @@ def create_budget(request):
         budget.user = request.user
         budget.save()
         return redirect("transactions:dashboard")
-    # suggestions may call external logic; guard it
+
     try:
-        suggestions = suggest_budgets(request.user)
+        suggestions = suggest_budgets(request.user) if suggest_budgets else []
     except Exception as e:
         print("BUDGET SUGGEST ERROR:", e)
         suggestions = []
-    return render(request, "budget_form.html", {"form": form, "suggestions": suggestions})
+
+    return render(
+        request,
+        "budget_form.html",
+        {"form": form, "suggestions": suggestions},
+    )
 
 
 @login_required
 def budgets_list(request):
-    return render(request, "budgets_list.html", {"budgets": Budget.objects.filter(user=request.user)})
+    return render(
+        request,
+        "budgets_list.html",
+        {"budgets": Budget.objects.filter(user=request.user)},
+    )
 
 
 # =========================================================
-# AI CHATBOT API (HARDENED)
+# AI CHAT (NEVER 500)
 # =========================================================
 @login_required
 @require_POST
@@ -240,24 +275,26 @@ def chat_api(request):
         if not msg:
             return JsonResponse({"reply": "Ask something 🙂"})
 
-        reply = finance_chat(request.user, msg)
-        if not reply:
-            reply = "⚠️ AI did not return a response."
+        if not finance_chat:
+            return JsonResponse({"reply": "AI is disabled."})
 
-        return JsonResponse({"reply": str(reply)})
+        reply = finance_chat(request.user, msg)
+        return JsonResponse({"reply": reply or "⚠️ No response."})
 
     except Exception as e:
         print("CHAT ERROR:", e)
-        # Return 200 so frontend can show a friendly message instead of treating as server error
-        return JsonResponse({"reply": "⚠️ AI service temporarily unavailable."}, status=200)
+        return JsonResponse(
+            {"reply": "⚠️ AI temporarily unavailable."},
+            status=200,
+        )
 
 
-# =========================================================
-# STREAMING CHAT (SAFE)
-# =========================================================
 @login_required
 @require_POST
 def chat_stream(request):
+    if not finance_chat_stream:
+        return StreamingHttpResponse("AI disabled.", content_type="text/plain")
+
     try:
         data = json.loads(request.body or "{}")
         message = (data.get("message") or "").strip()
@@ -276,17 +313,32 @@ def chat_stream(request):
 
 
 # =========================================================
-# ADMIN (SAFE)
+# ADMIN
 # =========================================================
 @staff_member_required
 def admin_dashboard(request):
     try:
-        online_users = UserActivity.objects.filter(last_seen__gte=now() - timedelta(minutes=5)).count()
+        online_users = (
+            UserActivity.objects.filter(
+                last_seen__gte=now() - timedelta(minutes=5)
+            ).count()
+            if UserActivity
+            else 0
+        )
     except Exception:
         online_users = 0
 
-    total_income = Transaction.objects.filter(transaction_type="INCOME").aggregate(total=Sum("amount"))["total"] or 0
-    total_expense = Transaction.objects.filter(transaction_type="EXPENSE").aggregate(total=Sum("amount"))["total"] or 0
+    total_income = (
+        Transaction.objects.filter(transaction_type="INCOME")
+        .aggregate(total=Sum("amount"))["total"]
+        or 0
+    )
+
+    total_expense = (
+        Transaction.objects.filter(transaction_type="EXPENSE")
+        .aggregate(total=Sum("amount"))["total"]
+        or 0
+    )
 
     return render(
         request,
@@ -303,7 +355,11 @@ def admin_dashboard(request):
 
 @staff_member_required
 def admin_users(request):
-    return render(request, "admin_users.html", {"users": User.objects.all().order_by("-date_joined")})
+    return render(
+        request,
+        "admin_users.html",
+        {"users": User.objects.all().order_by("-date_joined")},
+    )
 
 
 @staff_member_required
