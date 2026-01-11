@@ -19,17 +19,18 @@ if not SECRET_KEY:
 
 DEBUG = os.getenv("DEBUG", "False").lower() in {"1", "true", "yes"}
 
-# Parse ALLOWED_HOSTS robustly (trim whitespace, ignore empty)
 _raw_hosts = os.getenv("ALLOWED_HOSTS", ".onrender.com,localhost,127.0.0.1")
 ALLOWED_HOSTS = [h.strip() for h in _raw_hosts.split(",") if h.strip()]
 
-# Trusted origins for CSRF
 CSRF_TRUSTED_ORIGINS = [
     "https://*.onrender.com",
 ]
-# In local debug, allow localhost origins too
+
 if DEBUG:
-    CSRF_TRUSTED_ORIGINS += ["http://localhost", "http://127.0.0.1"]
+    CSRF_TRUSTED_ORIGINS += [
+        "http://localhost",
+        "http://127.0.0.1",
+    ]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = not DEBUG
@@ -39,20 +40,21 @@ CSRF_COOKIE_SECURE = not DEBUG
 # APPLICATIONS
 # =================================================
 INSTALLED_APPS = [
+    # Django core
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",   # ✅ REQUIRED
 
+    # Project apps
     "accounts",
     "transactions",
     "insights",
 ]
 
-
-# Required by django.contrib.sites
 SITE_ID = int(os.getenv("SITE_ID", 1))
 
 # =================================================
@@ -61,15 +63,17 @@ SITE_ID = int(os.getenv("SITE_ID", 1))
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
 
+    # MUST be last
     "accounts.middleware.ActiveUserMiddleware",
 ]
-
 
 # =================================================
 # URLS / TEMPLATES
@@ -118,25 +122,40 @@ USE_I18N = True
 USE_TZ = True
 
 # =================================================
-# STATIC FILES (RENDER SAFE)
+# STATIC FILES
 # =================================================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 
 # =================================================
-# AUTH / LOGIN CONFIG
+# AUTH
 # =================================================
-# Use namespaced URL names that match accounts/urls.py
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
+# =================================================
 # DEFAULT PK
 # =================================================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # =================================================
-# LOGGING (prints errors to stdout so Render shows tracebacks)
+# LOGGING (CRITICAL FOR RENDER)
 # =================================================
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "ERROR",
+    },
+}
