@@ -39,20 +39,18 @@ CSRF_COOKIE_SECURE = not DEBUG
 # APPLICATIONS
 # =================================================
 INSTALLED_APPS = [
-    # Django core
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "django.contrib.sites",
 
-    # Project apps
     "accounts",
     "transactions",
     "insights",
 ]
+
 
 # Required by django.contrib.sites
 SITE_ID = int(os.getenv("SITE_ID", 1))
@@ -131,11 +129,10 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # AUTH / LOGIN CONFIG
 # =================================================
 # Use namespaced URL names that match accounts/urls.py
-LOGIN_URL = "accounts:login"
-LOGIN_REDIRECT_URL = "transactions:dashboard"
-LOGOUT_REDIRECT_URL = "accounts:login"
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/accounts/login/"
 
-# =================================================
 # DEFAULT PK
 # =================================================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
