@@ -13,7 +13,7 @@ urlpatterns = [
     # Login and logout using Django built-in views
     path(
         "login/",
-        auth_views.LoginView.as_view(template_name="templates/login.html"),
+        auth_views.LoginView.as_view(template_name="accounts/login.html"),
         name="login",
     ),
     path(
