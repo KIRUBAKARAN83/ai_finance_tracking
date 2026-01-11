@@ -106,120 +106,132 @@ body.dark #chatbotBox{background:#1e1e1e}
 
 <!-- ================= NAVBAR ================= -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-<div class="container">
-<a class="navbar-brand fw-bold" href="{% url 'transactions:dashboard' %}">AI Finance Tracker</a>
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{% url 'transactions:dashboard' %}">AI Finance Tracker</a>
 
-<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mainNav">
-<span class="navbar-toggler-icon"></span>
-</button>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
-<div class="collapse navbar-collapse" id="mainNav">
-<ul class="navbar-nav ms-auto align-items-center">
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto align-items-center">
 
-{% if user.is_authenticated %}
-<li class="nav-item">
-<a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:dashboard' %}active{% endif %}" href="{% url 'transactions:dashboard' %}">
-<i class="bi bi-speedometer2"></i> Dashboard
-</a>
-</li>
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:dashboard' %}active{% endif %}" href="{% url 'transactions:dashboard' %}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
 
-<li class="nav-item">
-<a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:all_transactions' %}active{% endif %}" href="{% url 'transactions:all_transactions' %}">
-<i class="bi bi-receipt"></i> Transactions
-</a>
-</li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:all_transactions' %}active{% endif %}" href="{% url 'transactions:all_transactions' %}">
+            <i class="bi bi-receipt"></i> Transactions
+          </a>
+        </li>
 
-<li class="nav-item">
-<a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:budgets_list' %}active{% endif %}" href="{% url 'transactions:budgets_list' %}">
-<i class="bi bi-pie-chart"></i> Budgets
-</a>
-</li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:budgets_list' %}active{% endif %}" href="{% url 'transactions:budgets_list' %}">
+            <i class="bi bi-pie-chart"></i> Budgets
+          </a>
+        </li>
 
-{% if user.is_staff %}
-<li class="nav-item">
-<a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:admin_dashboard' %}active{% endif %}" href="{% url 'transactions:admin_dashboard' %}">
-<i class="bi bi-shield-lock"></i> Admin
-</a>
-</li>
-{% endif %}
+        {% if user.is_staff %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match and request.resolver_match.view_name == 'transactions:admin_dashboard' %}active{% endif %}" href="{% url 'transactions:admin_dashboard' %}">
+            <i class="bi bi-shield-lock"></i> Admin
+          </a>
+        </li>
+        {% endif %}
 
-<li class="nav-item ms-2">
-<button id="installBtn" class="btn btn-outline-primary btn-sm d-none">
-<i class="bi bi-download"></i> Install
-</button>
-</li>
+        <li class="nav-item ms-2">
+          <button id="installBtn" class="btn btn-outline-primary btn-sm d-none">
+            <i class="bi bi-download"></i> Install
+          </button>
+        </li>
 
-<li class="nav-item">
-<form method="post" action="{% url 'accounts:logout' %}">
-{% csrf_token %}
-<button class="btn btn-link nav-link">Logout</button>
-</form>
-</li>
-{% endif %}
+        <li class="nav-item">
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-link nav-link">Logout</button>
+          </form>
+        </li>
+        {% endif %}
 
-<li class="nav-item ms-2">
-<button id="themeToggle" class="btn btn-outline-light btn-sm">🌙</button>
-</li>
-</ul>
-</div>
-</div>
+        <li class="nav-item ms-2">
+          <button id="themeToggle" class="btn btn-outline-light btn-sm">🌙</button>
+        </li>
+      </ul>
+    </div>
+  </div>
 </nav>
 
 <!-- ================= CONTENT ================= -->
 <div class="container my-5">
-{% block content %}{% endblock %}
+  {% block content %}{% endblock %}
 </div>
 
 <!-- ================= MOBILE NAV ================= -->
 <nav class="mobile-nav d-lg-none">
-<a href="{% url 'transactions:dashboard' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:dashboard' %}active{% endif %}">
-<i class="bi bi-speedometer2"></i>Home</a>
-<a href="{% url 'transactions:all_transactions' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:all_transactions' %}active{% endif %}">
-<i class="bi bi-receipt"></i>Txns</a>
-<a href="{% url 'transactions:budgets_list' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:budgets_list' %}active{% endif %}">
-<i class="bi bi-pie-chart"></i>Budget</a>
-<a href="#" id="installBtnMobile"><i class="bi bi-download"></i>Install</a>
+  <a href="{% url 'transactions:dashboard' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:dashboard' %}active{% endif %}">
+    <i class="bi bi-speedometer2"></i>Home
+  </a>
+  <a href="{% url 'transactions:all_transactions' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:all_transactions' %}active{% endif %}">
+    <i class="bi bi-receipt"></i>Txns
+  </a>
+  <a href="{% url 'transactions:budgets_list' %}" class="{% if request.resolver_match and request.resolver_match.view_name == 'transactions:budgets_list' %}active{% endif %}">
+    <i class="bi bi-pie-chart"></i>Budget
+  </a>
+  <a href="#" id="installBtnMobile"><i class="bi bi-download"></i>Install</a>
 </nav>
 
 <!-- ================= CHATBOT ================= -->
 <div id="chatbotBtn">💬</div>
 
 <div id="chatbotBox">
-<div class="chat-header">
-🤖 Finance Assistant
-<span id="chatClose">✖</span>
-</div>
+  <div class="chat-header">
+    🤖 Finance Assistant
+    <span id="chatClose">✖</span>
+  </div>
 
-<div id="chatMessages"></div>
+  <div id="chatMessages"></div>
 
-<form id="chatForm">
-<input id="chatInput" placeholder="Ask about budgets, expenses…" autocomplete="off">
-<button>➤</button>
-</form>
+  <form id="chatForm">
+    <input id="chatInput" placeholder="Ask about budgets, expenses…" autocomplete="off">
+    <button>➤</button>
+  </form>
 </div>
 
 <!-- ================= JS ================= -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
-const t=document.getElementById("themeToggle");
-if(localStorage.getItem("theme")==="dark")document.body.classList.add("dark");
-t.onclick=()=>{document.body.classList.toggle("dark");
-localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");};
+document.addEventListener("DOMContentLoaded", () => {
+  const t = document.getElementById("themeToggle");
+  if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
+  t.onclick = () => {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+  };
 });
 </script>
 
 <script>
-let deferredPrompt=null;
-const iBtn=document.getElementById("installBtn");
-const iBtnM=document.getElementById("installBtnMobile");
-window.addEventListener("beforeinstallprompt",e=>{
-e.preventDefault();deferredPrompt=e;iBtn.classList.remove("d-none");
+let deferredPrompt = null;
+const iBtn = document.getElementById("installBtn");
+const iBtnM = document.getElementById("installBtnMobile");
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (iBtn) iBtn.classList.remove("d-none");
 });
-function install(){if(!deferredPrompt)return;
-deferredPrompt.prompt();deferredPrompt=null;iBtn.classList.add("d-none");}
-iBtn.onclick=install;iBtnM.onclick=e=>{e.preventDefault();install();}
+function install() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt = null;
+  if (iBtn) iBtn.classList.add("d-none");
+}
+if (iBtn) iBtn.onclick = install;
+if (iBtnM) iBtnM.onclick = e => { e.preventDefault(); install(); };
 </script>
 
 <script>
@@ -239,48 +251,52 @@ function getCookie(name) {
   return cookieValue;
 }
 
-const cb=document.getElementById("chatbotBtn"),
-bx=document.getElementById("chatbotBox"),
-cl=document.getElementById("chatClose"),
-fm=document.getElementById("chatForm"),
-ip=document.getElementById("chatInput"),
-ms=document.getElementById("chatMessages");
+const cb = document.getElementById("chatbotBtn"),
+      bx = document.getElementById("chatbotBox"),
+      cl = document.getElementById("chatClose"),
+      fm = document.getElementById("chatForm"),
+      ip = document.getElementById("chatInput"),
+      ms = document.getElementById("chatMessages");
 
-cb.onclick=()=>bx.style.display="flex";
-cl.onclick=()=>bx.style.display="none";
+if (cb) cb.onclick = () => bx.style.display = "flex";
+if (cl) cl.onclick = () => bx.style.display = "none";
 
-fm.onsubmit=e=>{
-e.preventDefault();
-const m=ip.value.trim(); if(!m)return;
-ms.innerHTML+=`<div class="chat-user">🧑 ${m}</div>`;
-ip.value="";
-fetch("{% url 'transactions:chat_api' %}",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"X-CSRFToken": getCookie('csrftoken')
-},
-body:JSON.stringify({message:m})
-})
-.then(r=>{
-  if(!r.ok) throw new Error('Network response was not ok');
-  return r.json();
-})
-.then(d=>{
-ms.innerHTML+=`<div class="chat-bot">🤖 ${d.reply}</div>`;
-ms.scrollTop=ms.scrollHeight;
-})
-.catch(err=>{
-  console.error("Chat error:", err);
-  ms.innerHTML+=`<div class="chat-bot">⚠️ Error contacting assistant</div>`;
-  ms.scrollTop=ms.scrollHeight;
-});
-};
+if (fm) {
+  fm.onsubmit = e => {
+    e.preventDefault();
+    const m = ip.value.trim(); if (!m) return;
+    ms.innerHTML += `<div class="chat-user">🧑 ${m}</div>`;
+    ip.value = "";
+    fetch("{% url 'transactions:chat_api' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie('csrftoken')
+      },
+      body: JSON.stringify({ message: m })
+    })
+    .then(r => {
+      if (!r.ok) throw new Error('Network response was not ok');
+      return r.json();
+    })
+    .then(d => {
+      ms.innerHTML += `<div class="chat-bot">🤖 ${d.reply}</div>`;
+      ms.scrollTop = ms.scrollHeight;
+    })
+    .catch(err => {
+      console.error("Chat error:", err);
+      ms.innerHTML += `<div class="chat-bot">⚠️ Error contacting assistant</div>`;
+      ms.scrollTop = ms.scrollHeight;
+    });
+  };
+}
 </script>
 
 <script>
-if("serviceWorker"in navigator){
-navigator.serviceWorker.register("{% static 'service-worker.js' %}");
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("{% static 'service-worker.js' %}").catch(function(err){
+    console.warn("ServiceWorker registration failed:", err);
+  });
 }
 </script>
 
