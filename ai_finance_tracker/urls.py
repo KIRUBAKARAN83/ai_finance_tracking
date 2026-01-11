@@ -1,5 +1,4 @@
 # ai_finance_tracker/urls.py
-
 from django.contrib import admin
 from django.urls import path, include
 
@@ -8,7 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # Accounts app (register, profile, etc.)
-    path("accounts/", include("accounts.urls")),
+    path("accounts/", include(("accounts.urls", "accounts"), namespace="accounts")),
 
     # Django built-in auth (login, logout, password reset)
     path("accounts/", include("django.contrib.auth.urls")),
