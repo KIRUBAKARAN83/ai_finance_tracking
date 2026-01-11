@@ -135,7 +135,7 @@ STATICFILES_STORAGE = (
 # AUTH
 # =================================================
 LOGIN_URL = "/accounts/login/"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "transactions:dashboard"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 # =================================================
