@@ -6,16 +6,11 @@ urlpatterns = [
     # Admin site
     path("admin/", admin.site.urls),
 
-    # Accounts: include both custom app URLs and Django's built-in auth views
-    path(
-        "accounts/",
-        include(
-            [
-                path("", include(("accounts.urls", "accounts"))),
-                path("", include("django.contrib.auth.urls")),
-            ]
-        ),
-    ),
+    # Accounts: include your custom app URLs
+    path("accounts/", include(("accounts.urls", "accounts"), namespace="accounts")),
+
+    # Django’s built-in auth views (login, logout, password reset, etc.)
+    path("accounts/", include("django.contrib.auth.urls")),
 
     # Transactions app (dashboard at /)
     path("", include(("transactions.urls", "transactions"), namespace="transactions")),
