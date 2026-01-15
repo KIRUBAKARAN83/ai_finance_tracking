@@ -4,7 +4,235 @@
 {% block content %}
 
 <style>
-/* (your CSS unchanged) */
+/* ================= THEME (Premium Teal + Royal Indigo) ================= */
+:root{
+  --income-start: #00B894;   /* Premium Teal */
+  --income-end:   #00D2FF;   /* Cyan highlight */
+
+  --savings-start:#6F4FF2;   /* Royal Indigo */
+  --savings-end:  #A78BFA;   /* Lavender */
+
+  --expense-start:#FF6B6B;   /* Coral (danger) */
+  --expense-end:  #FF8A65;
+
+  --gold-1:       #FFD166;   /* Gold accent */
+
+  --bg:           #F7FBFC;
+  --card-glass:   rgba(255,255,255,.65);
+  --muted:        rgba(15,23,36,.6);
+  --card-border:  rgba(255,255,255,.22);
+  --text-strong:  #0F1724;
+  --shadow-1:     rgba(11,22,40,.06);
+}
+
+/* ---------- GLOBAL THEME (fallback tokens for this page) ---------- */
+:root {
+  --primary: var(--income-start);
+  --primary-2: var(--income-end);
+  --secondary: var(--savings-start);
+  --danger: var(--expense-start);
+  --success: #16a085;
+  --background: var(--bg);
+  --text-dark: var(--text-strong);
+}
+
+/* ---------- PAGE ANIMATION ---------- */
+.page-enter {
+  animation: pageFade 0.6s ease forwards;
+  opacity: 0;
+}
+@keyframes pageFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- SEARCH / FILTER CARD ---------- */
+.search-card {
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(247,250,255,0.98));
+  border: 1px solid rgba(11,22,40,0.04);
+  box-shadow: 0 8px 20px var(--shadow-1);
+  animation: fadeUp 0.5s ease forwards;
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+.search-card:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0,0,0,.08);
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- TABLE CARD ---------- */
+.table-card {
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border: 1px solid rgba(11,22,40,0.04);
+  box-shadow: 0 10px 30px var(--shadow-1);
+  animation: fadeUp 0.7s ease forwards;
+  transition: transform .28s ease, box-shadow .28s ease;
+}
+.table-card:hover{ transform: translateY(-6px); box-shadow: 0 22px 50px rgba(0,0,0,.08); }
+
+.table thead th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--primary);
+  border-bottom: none;
+  background: transparent;
+}
+
+/* subtle row hover using primary with low alpha */
+.table tbody tr {
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow .25s ease;
+  will-change: transform, background;
+}
+.table tbody tr:hover {
+  background: linear-gradient(90deg, rgba(0,184,148,0.03), rgba(111,79,242,0.02));
+  transform: translateY(-3px) scale(1.002);
+  box-shadow: 0 6px 18px rgba(11,22,40,.04);
+}
+
+/* ---------- BADGES ---------- */
+.badge-income {
+  background: linear-gradient(135deg, var(--income-start), var(--income-end));
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight:700;
+  box-shadow: 0 6px 18px rgba(0,184,148,.08);
+}
+.badge-expense {
+  background: linear-gradient(135deg, var(--expense-start), var(--expense-end));
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight:700;
+  box-shadow: 0 6px 18px rgba(255,107,107,.06);
+}
+
+/* ---------- ACTION BUTTONS ---------- */
+.action-btn {
+  opacity: 0.95;
+  transition: transform 0.22s cubic-bezier(.2,.9,.2,1), box-shadow .22s ease, background .22s ease;
+  border-radius: 10px;
+  font-weight:600;
+}
+.action-btn:hover {
+  opacity: 1;
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 8px 22px rgba(11,22,40,0.08);
+}
+
+/* outline primary / danger styles */
+.btn-outline-primary {
+  color: var(--primary);
+  border: 1px solid rgba(0,184,148,.12);
+  background: transparent;
+}
+.btn-outline-primary:hover {
+  background: linear-gradient(90deg, rgba(0,184,148,.06), rgba(111,79,242,.04));
+  color: #fff;
+  border-color: transparent;
+  background-clip: padding-box;
+}
+.btn-outline-danger {
+  color: var(--danger);
+  border: 1px solid rgba(255,107,107,.12);
+  background: transparent;
+}
+.btn-outline-danger:hover {
+  background: linear-gradient(90deg, rgba(255,107,107,.06), rgba(255,138,101,.04));
+  color: #fff;
+  border-color: transparent;
+}
+
+/* primary apply button uses income gradient */
+.btn-primary, .btn-primary:focus {
+  background: linear-gradient(135deg, var(--income-start), var(--income-end));
+  border: none;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0,210,255,.08);
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 45px rgba(0,210,255,.12);
+}
+
+/* clear button style */
+.btn-outline-secondary {
+  border: 1px solid rgba(11,22,40,0.06);
+  color: var(--muted);
+  background: transparent;
+}
+.btn-outline-secondary:hover {
+  background: rgba(11,22,40,0.03);
+  color: var(--text-dark);
+}
+
+/* ---------- PAGINATION ---------- */
+.pagination .page-link {
+  border-radius: 10px;
+  transition: background 0.25s ease, color 0.25s ease, transform .18s ease;
+}
+.pagination .page-link:hover {
+  background: linear-gradient(90deg,var(--income-start),var(--income-end));
+  color: #fff;
+  transform: translateY(-2px);
+}
+.pagination .page-item.active .page-link {
+  background: linear-gradient(90deg,var(--income-start),var(--income-end));
+  color: #fff;
+  border: none;
+  box-shadow: 0 10px 24px rgba(0,210,255,.06);
+}
+
+/* ---------- TABLE RESPONSIVE / MOBILE ---------- */
+@media (max-width: 768px) {
+  .action-btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 6px;
+  }
+  .table thead {
+    display: none;
+  }
+  .table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(11,22,40,0.04);
+    border-radius: 10px;
+    padding: 0.75rem;
+    background: linear-gradient(180deg,#ffffff,#fbfdff);
+  }
+  .table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.45rem 0;
+    border-bottom: none;
+  }
+  .table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--primary);
+    margin-right: 8px;
+  }
+}
+
+/* ---------- TYPOGRAPHY & UTILITIES ---------- */
+.text-primary { color: var(--primary) !important; }
+.text-success { color: var(--savings-start) !important; }
+.text-danger { color: var(--expense-start) !important; }
+.fw-semibold { font-weight: 600; }
+.fw-bold { font-weight: 800; }
+.table-light { background: transparent; }
+
+/* small visual polish */
+.table td, .table th { vertical-align: middle; }
 </style>
 
 <div class="page-enter">
@@ -49,7 +277,7 @@
 
       {% if query or start_date or end_date %}
       <div class="col-md-2">
-        <a href="{% url 'transactions:all_transactions' %}" class="btn btn-outline-secondary w-100 shadow-sm">
+        <a href="/transactions/" class="btn btn-outline-secondary w-100 shadow-sm">
           ✖ Clear
         </a>
       </div>
@@ -83,9 +311,9 @@
             <td data-label="Category">{{ txn.category }}</td>
             <td data-label="Type">
               {% if txn.transaction_type == "INCOME" %}
-                <span class="badge badge-income">Income</span>
+                <span class="badge-income">Income</span>
               {% else %}
-                <span class="badge badge-expense">Expense</span>
+                <span class="badge-expense">Expense</span>
               {% endif %}
             </td>
             <td data-label="Note">
