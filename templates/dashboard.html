@@ -3,54 +3,215 @@
 {% block content %}
 
 <style>
-/* ================= COLORS ================= */
-.income  { background: linear-gradient(135deg,#16a085,#2ecc71); color:#fff; }
-.expense { background: linear-gradient(135deg,#c0392b,#e74c3c); color:#fff; }
-.savings { background: linear-gradient(135deg,#5b2c83,#8e44ad); color:#fff; }
+/* ================= THEME (Premium Teal + Royal Indigo) ================= */
+:root{
+  /* Primary palette */
+  --income-start: #00B894;   /* Premium Teal */
+  --income-end:   #00D2FF;   /* Cyan highlight */
 
-/* ================= SCROLL ANIMATION ================= */
-.reveal {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: all .7s cubic-bezier(.22,.61,.36,1);
-}
-.reveal.active {
-  opacity: 1;
-  transform: translateY(0);
-}
+  --savings-start:#6F4FF2;   /* Royal Indigo */
+  --savings-end:  #A78BFA;   /* Lavender */
 
-/* ================= CARD INTERACTION ================= */
-.card {
-  transition: transform .35s ease, box-shadow .35s ease;
-}
-.card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,.25);
+  /* Accent / alerts */
+  --expense-start:#FF6B6B;   /* Coral (danger) */
+  --expense-end:  #FF8A65;
+  --gold-1:       #FFD166;   /* Gold accent */
+
+  /* UI tokens */
+  --bg:           #F7FBFC;
+  --card-glass:   rgba(255,255,255,.65);
+  --muted:        rgba(15,23,36,.6);
+  --card-border:  rgba(255,255,255,.22);
+  --text-strong:  #0F1724;
 }
 
-/* ================= BUDGET PROGRESS ================= */
-.progress-bar {
-  width: 0%;
-  transition: width 1.4s cubic-bezier(.22,.61,.36,1);
+/* ================= REVEAL ================= */
+.reveal{
+  opacity:0;
+  transform:translateY(40px) scale(.98) rotate(-0.6deg);
+  transition:all .9s cubic-bezier(.22,.61,.36,1);
+  will-change:transform,opacity;
+}
+.reveal.active{
+  opacity:1;
+  transform:translateY(0) scale(1) rotate(0deg);
+  transition:all 1s cubic-bezier(.19,1,.22,1);
+}
+
+/* ================= CARDS ================= */
+.card{
+  position:relative;
+  border:none;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.56), rgba(255,255,255,.44));
+  backdrop-filter:blur(18px) saturate(140%);
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  box-shadow:0 18px 45px rgba(0,0,0,.12);
+  transition:transform .45s cubic-bezier(.2,.9,.2,1), box-shadow .45s cubic-bezier(.2,.9,.2,1), border .45s ease;
+  border:1px solid var(--card-border);
+  overflow:hidden;
+}
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  border-radius:inherit;
+  mix-blend-mode:overlay;
+  opacity:.06;
+}
+.card:hover{
+  transform:translateY(-12px) scale(1.02);
+  box-shadow:0 35px 75px rgba(0,0,0,.22);
+  border:1px solid rgba(255,255,255,.38);
+}
+.card .card-body{position:relative;z-index:2}
+
+/* ================= SUMMARY ================= */
+.summary-card{
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+.summary-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.03), rgba(0,0,0,.03));
+  mix-blend-mode:overlay;
+  z-index:1;
+}
+.summary-card .card-body{position:relative;z-index:2}
+.income{background:linear-gradient(135deg,var(--income-start),var(--income-end))}
+.expense{background:linear-gradient(135deg,var(--expense-start),var(--expense-end))}
+.savings{background:linear-gradient(135deg,var(--savings-start),var(--savings-end))}
+
+.summary-card h6{opacity:.95;font-weight:700;letter-spacing:.2px}
+.summary-card h3{font-weight:800;letter-spacing:.6px}
+
+/* accent glow */
+.summary-card:hover{box-shadow:0 30px 80px rgba(0,0,0,.22), 0 0 30px rgba(0,0,0,.06) inset}
+
+/* ================= PROGRESS ================= */
+.progress{
+  background:rgba(255,255,255,.12);
+  border-radius:20px;
+  height:10px;
+  overflow:hidden;
+  position:relative;
+}
+.progress-bar{
+  width:0%;
+  height:100%;
+  border-radius:20px;
+  transition:width 1.6s cubic-bezier(.22,.61,.36,1);
+  background-size:200% 100%;
+  box-shadow:0 6px 18px rgba(0,0,0,.08) inset;
+}
+
+/* shimmer for progress */
+.progress-bar.shimmer{
+  animation:shimmer 2.2s linear infinite;
+  background-image: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.12), rgba(255,255,255,.06));
+}
+@keyframes shimmer{
+  0%{background-position:0% 50%}
+  100%{background-position:100% 50%}
+}
+
+/* ================= BUTTONS ================= */
+.btn{
+  transition:transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s ease, background .28s ease;
+  border-radius:12px;
+  font-weight:600;
+}
+.btn:active{transform:translateY(1px) scale(.997)}
+.btn-success{
+  background:linear-gradient(135deg,var(--income-start),var(--income-end));
+  border:none;color:#fff;
+  box-shadow:0 10px 30px rgba(0,210,255,.12);
+}
+.btn-success:hover{
+  transform:translateY(-3px);
+  box-shadow:0 18px 45px rgba(0,210,255,.18);
+}
+.btn-outline-dark{
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,.08);
+  background:transparent;
+  color:var(--muted);
+}
+.btn-outline-dark:hover{
+  background:rgba(0,0,0,.04);
+  transform:translateY(-2px);
+}
+.btn-outline-primary{
+  border-radius:12px;
+  border:1px solid rgba(123,97,255,.12);
+  color:var(--savings-end);
+  background:transparent;
+}
+.btn-outline-primary:hover{
+  background:linear-gradient(90deg, rgba(123,97,255,.06), rgba(167,139,250,.06));
+  transform:translateY(-2px);
 }
 
 /* ================= CHAT ================= */
-.chat-user {
-  background:#0d6efd;
-  color:#fff;
-  padding:8px 12px;
-  border-radius:14px 14px 0 14px;
-  margin:6px 0;
-  max-width:75%;
-  margin-left:auto;
+#chatBox{
+  background:linear-gradient(180deg,#fbfdff,#f3f7fb);
+  padding:14px;border-radius:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,.06) inset;
 }
-.chat-bot {
-  background:#e9ecef;
-  color:#000;
-  padding:8px 12px;
-  border-radius:14px 14px 14px 0;
-  margin:6px 0;
-  max-width:75%;
+.chat-user{
+  background:linear-gradient(135deg,var(--income-start),var(--income-end));
+  color:#fff;
+  padding:10px 16px;
+  border-radius:18px 18px 0 18px;
+  margin:8px 0;
+  max-width:72%;
+  margin-left:auto;
+  animation:pop .28s cubic-bezier(.2,.9,.2,1);
+  box-shadow:0 8px 20px rgba(0,210,255,.08);
+}
+.chat-bot{
+  background:linear-gradient(135deg,#ffffff,#eef3f8);
+  padding:10px 16px;
+  border-radius:18px 18px 18px 0;
+  margin:8px 0;
+  max-width:72%;
+  animation:pop .28s cubic-bezier(.2,.9,.2,1);
+  color:var(--muted);
+  border:1px solid rgba(0,0,0,.03);
+}
+@keyframes pop{
+  from{opacity:0;transform:scale(.95) translateY(6px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.chat-bot.typing{font-style:italic;opacity:.85}
+
+/* ================= TEXT & LIST ANIMATIONS ================= */
+h3.fw-bold.reveal{
+  transform-origin:left center;
+  transition:all .9s cubic-bezier(.22,.61,.36,1);
+}
+ul.mb-0 li{
+  opacity:0;
+  transform:translateX(-18px);
+  animation:fadeSlide .6s forwards;
+}
+ul.mb-0 li:nth-child(1){animation-delay:.18s}
+ul.mb-0 li:nth-child(2){animation-delay:.34s}
+ul.mb-0 li:nth-child(3){animation-delay:.5s}
+@keyframes fadeSlide{ to{opacity:1;transform:translateX(0)} }
+
+/* ================= CHART CANVAS STYLING ================= */
+canvas{display:block;max-width:100%}
+
+/* ================= SMALL SCREENS ================= */
+@media (max-width:576px){
+  .summary-card h3{font-size:1.25rem}
+  .card{border-radius:14px}
+  .btn{font-size:.95rem}
 }
 </style>
 
@@ -58,50 +219,65 @@
 
 <!-- ================= SUMMARY ================= -->
 <div class="row g-4 mb-4">
-  <div class="col-md-4 reveal"><div class="card income"><div class="card-body"><h6>💰 Income</h6><h3 id="incomeCounter">₹0</h3></div></div></div>
-  <div class="col-md-4 reveal"><div class="card expense"><div class="card-body"><h6>📉 Expense</h6><h3 id="expenseCounter">₹0</h3></div></div></div>
-  <div class="col-md-4 reveal"><div class="card savings"><div class="card-body"><h6>💎 Savings</h6><h3 id="savingsCounter">₹0</h3></div></div></div>
+  <div class="col-md-4 reveal">
+    <div class="card summary-card income">
+      <div class="card-body">
+        <h6>💰 Income</h6>
+        <h3 id="incomeCounter">₹0</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 reveal">
+    <div class="card summary-card expense">
+      <div class="card-body">
+        <h6>📉 Expense</h6>
+        <h3 id="expenseCounter">₹0</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 reveal">
+    <div class="card summary-card savings">
+      <div class="card-body">
+        <h6>💎 Savings</h6>
+        <h3 id="savingsCounter">₹0</h3>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ================= AI INSIGHTS ================= -->
 <div class="card mb-4 reveal">
   <div class="card-body">
-    <h5 class="fw-bold">🤖 AI Insights</h5>
-
+    <h5 class="fw-bold mb-3">🤖 AI Insights</h5>
     {% if insights or auto_insights %}
       <ul class="mb-0">
-        {% for i in insights %}
-          <li>✔ {{ i }}</li>
-        {% endfor %}
-        {% for ai in auto_insights %}
-          <li>🧠 {{ ai }}</li>
-        {% endfor %}
+        {% for i in insights %}<li>✔ {{ i }}</li>{% endfor %}
+        {% for ai in auto_insights %}<li>🧠 {{ ai }}</li>{% endfor %}
       </ul>
     {% else %}
-      <p class="text-muted mb-0">
-        No insights yet. Add more transactions to unlock AI insights.
-      </p>
+      <p class="text-muted mb-0">No insights yet.</p>
     {% endif %}
   </div>
 </div>
 
-<!-- ================= BUDGETS ================= -->
+<!-- ================= BUDGET ================= -->
 {% if budgets %}
 <div class="card mb-4 reveal">
   <div class="card-body">
     <h5 class="fw-bold mb-3">📉 Budget Usage</h5>
     {% for b in budgets %}
     <div class="mb-3">
-      <div class="d-flex justify-content-between">
-        <strong>{{ b.category }}</strong>
+      <div class="d-flex justify-content-between fw-semibold">
+        <span>{{ b.category }}</span>
         <span>₹{{ b.spent }} / ₹{{ b.limit }}</span>
       </div>
-      <div class="progress" style="height:10px;">
-        <div class="progress-bar
+      <div class="progress mt-1" style="height:10px">
+        <div class="progress-bar shimmer
           {% if b.percent >= 100 %}bg-danger
           {% elif b.percent >= 80 %}bg-warning
-          {% else %}bg-success
-          {% endif %}"
+          {% else %}bg-success{% endif %}"
           data-percent="{{ b.percent }}">
         </div>
       </div>
@@ -120,22 +296,32 @@
 
 <!-- ================= CHARTS ================= -->
 <div class="row g-4 mb-5">
-  <div class="col-md-6 reveal"><div class="card"><div class="card-body"><canvas id="barChart"></canvas></div></div></div>
-  <div class="col-md-6 reveal"><div class="card"><div class="card-body"><canvas id="pieChart"></canvas></div></div></div>
+  <div class="col-md-6 reveal">
+    <div class="card">
+      <div class="card-body">
+        <canvas id="barChart" style="height:320px"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 reveal">
+    <div class="card">
+      <div class="card-body">
+        <canvas id="pieChart" style="height:320px"></canvas>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- ================= AI CHAT ================= -->
-<div class="card mt-4 reveal">
+<!-- ================= CHAT ================= -->
+<div class="card reveal">
   <div class="card-body">
     <h5 class="fw-bold">🤖 AI Assistant</h5>
-
-    <div id="chatBox" style="height:260px;overflow-y:auto;background:#f8f9fa;padding:10px;border-radius:10px" class="mb-3">
+    <div id="chatBox" style="height:260px;overflow-y:auto" class="mb-3">
       <div class="text-muted">Ask me about your budget, expenses, savings…</div>
     </div>
-
     <div class="input-group">
       <input id="chatInput" class="form-control" placeholder="Ask something…" autocomplete="off">
-      <button id="chatSend" class="btn btn-primary">Send</button>
+      <button id="chatSend" class="btn btn-primary" style="background:linear-gradient(135deg,var(--savings-start),var(--savings-end));border:none;color:#fff">Send</button>
     </div>
   </div>
 </div>
@@ -144,41 +330,155 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const obs = new IntersectionObserver(e => e.forEach(x => x.isIntersecting && x.target.classList.add("active")), {threshold:.15});
-  document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
 
-  document.querySelectorAll(".progress-bar").forEach(b => {
-    setTimeout(() => b.style.width = (b.dataset.percent || 0) + "%", 300);
+  /* Reveal animation */
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting) entry.target.classList.add("active");
+    });
+  },{threshold:.15});
+  document.querySelectorAll(".reveal").forEach(el=>obs.observe(el));
+
+  /* Progress bars */
+  document.querySelectorAll(".progress-bar").forEach(b=>{
+    const percent = Number(b.dataset.percent || 0);
+    let grad;
+    if(percent >= 100){
+      grad = `linear-gradient(90deg, var(--expense-start), var(--expense-end))`;
+    } else if(percent >= 80){
+      grad = `linear-gradient(90deg, var(--gold-1), var(--expense-start))`;
+    } else {
+      grad = `linear-gradient(90deg, var(--income-start), var(--income-end))`;
+    }
+    b.style.backgroundImage = grad;
+    setTimeout(()=>b.style.width=(b.dataset.percent||0)+"%",300);
   });
 
+  /* Counter animation */
   function animate(el,val){
     let c=0,step=Math.max(val/60,1);
-    (function run(){ c+=step; c<val ? (el.innerText="₹"+Math.floor(c),requestAnimationFrame(run)) : el.innerText="₹"+val })();
+    (function run(){
+      c+=step;
+      if(c<val){
+        el.innerText="₹"+Math.floor(c);
+        requestAnimationFrame(run);
+      } else {
+        el.innerText="₹"+val;
+      }
+    })();
   }
 
-  const barC=document.getElementById("barChart"), pieC=document.getElementById("pieChart");
+  const incomeCounter=document.getElementById("incomeCounter");
+  const expenseCounter=document.getElementById("expenseCounter");
+  const savingsCounter=document.getElementById("savingsCounter");
+
   let bar=null,pie=null,done=false;
 
+  function createGradients(ctx,chartArea){
+    const root = getComputedStyle(document.documentElement);
+    const incomeStart = root.getPropertyValue('--income-start').trim() || '#00B894';
+    const incomeEnd   = root.getPropertyValue('--income-end').trim()   || '#00D2FF';
+    const expenseStart= root.getPropertyValue('--expense-start').trim()|| '#FF6B6B';
+    const expenseEnd  = root.getPropertyValue('--expense-end').trim()  || '#FF8A65';
+    const savingsStart= root.getPropertyValue('--savings-start').trim()|| '#6F4FF2';
+    const savingsEnd  = root.getPropertyValue('--savings-end').trim()  || '#A78BFA';
+
+    const gIncome = ctx.createLinearGradient(0,chartArea.bottom,0,chartArea.top);
+    gIncome.addColorStop(0, incomeEnd);
+    gIncome.addColorStop(1, incomeStart);
+
+    const gExpense = ctx.createLinearGradient(0,chartArea.bottom,0,chartArea.top);
+    gExpense.addColorStop(0, expenseEnd);
+    gExpense.addColorStop(1, expenseStart);
+
+    const gSavings = ctx.createLinearGradient(0,chartArea.bottom,0,chartArea.top);
+    gSavings.addColorStop(0, savingsEnd);
+    gSavings.addColorStop(1, savingsStart);
+
+    return [gIncome,gExpense,gSavings];
+  }
+
   function load(){
-    fetch("{% url 'transactions:chart_data' %}").then(r=>r.json()).then(d=>{
+    fetch("{% url 'transactions:chart_data' %}")
+    .then(r=>r.json())
+    .then(d=>{
       if(!done){
         animate(incomeCounter,d.income);
         animate(expenseCounter,d.expense);
         animate(savingsCounter,d.savings);
         done=true;
       }
+
+      const barCanvas = document.getElementById('barChart');
+      const pieCanvas = document.getElementById('pieChart');
+
       if(!bar){
-        bar=new Chart(barC,{type:"bar",data:{labels:["Income","Expense","Savings"],datasets:[{data:[d.income,d.expense,d.savings],backgroundColor:["#1abc9c","#e74c3c","#9b59b6"],borderRadius:12}]},options:{plugins:{legend:{display:false}}}});
-        pie=new Chart(pieC,{type:"pie",data:{labels:["Income","Expense","Savings"],datasets:[{data:[d.income,d.expense,d.savings],backgroundColor:["#16a085","#e74c3c","#8e44ad"]}]}})
+        const barCtx = barCanvas.getContext('2d');
+
+        bar = new Chart(barCtx,{
+          type:"bar",
+          data:{labels:["Income","Expense","Savings"],
+            datasets:[{data:[d.income,d.expense,d.savings],
+            backgroundColor:['#00B894','#FF6B6B','#6F4FF2'],
+            borderRadius:12}]},
+          options:{
+            plugins:{legend:{display:false}},
+            animation:{duration:900,easing:"easeOutQuart"},
+            responsive:true,
+            maintainAspectRatio:false,
+            scales:{
+              x:{grid:{display:false},ticks:{color:'#374151'}},
+              y:{grid:{color:'rgba(0,0,0,.06)'},ticks:{color:'#374151'}}
+            }
+          },
+          plugins:[{
+            id: 'applyGradients',
+            beforeDatasetsDraw(chart){
+              const ctx = chart.ctx;
+              const chartArea = chart.chartArea;
+              if(!chartArea) return;
+              const grads = createGradients(ctx,chartArea);
+              chart.data.datasets[0].backgroundColor = grads;
+            }
+          }]
+        });
+
+        const pieCtx = pieCanvas.getContext('2d');
+        const root = getComputedStyle(document.documentElement);
+        const pIncome = root.getPropertyValue('--income-start').trim() || '#00B894';
+        const pExpense = root.getPropertyValue('--expense-start').trim() || '#FF6B6B';
+        const pSavings = root.getPropertyValue('--savings-start').trim() || '#6F4FF2';
+
+        pie = new Chart(pieCtx,{
+          type:"pie",
+          data:{labels:["Income","Expense","Savings"],
+          datasets:[{data:[d.income,d.expense,d.savings],
+          backgroundColor:[pIncome,pExpense,pSavings],
+          hoverOffset:10,
+          borderColor:'rgba(255,255,255,0.06)',
+          borderWidth:2}]},
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}}
+          }
+        });
+
       } else {
         bar.data.datasets[0].data=[d.income,d.expense,d.savings];
         pie.data.datasets[0].data=[d.income,d.expense,d.savings];
-        bar.update(); pie.update();
+        bar.update();
+        pie.update();
       }
+    })
+    .catch(err=>{
+      console.error("Chart load failed",err);
     });
   }
+
   load(); setInterval(load,15000);
 
+  /* Chat */
   const chatBox=document.getElementById("chatBox");
   const chatInput=document.getElementById("chatInput");
   const chatSend=document.getElementById("chatSend");
@@ -197,26 +497,33 @@ document.addEventListener("DOMContentLoaded", () => {
     append(msg,"chat-user");
     chatInput.value="";
     chatSend.disabled=true;
-    append("typing…","chat-bot");
+    append("typing…","chat-bot typing");
 
-    fetch("{% url 'transactions:chat_api' %}",{
+    fetch("{% url 'chat_api' %}",{
       method:"POST",
       headers:{
         "Content-Type":"application/json",
         "X-CSRFToken":"{{ csrf_token }}"
       },
       body:JSON.stringify({message:msg})
-
     })
     .then(r=>r.json())
-    .then(d=>chatBox.lastChild.innerText=d.reply||"⚠️ No reply")
-    .catch(()=>chatBox.lastChild.innerText="⚠️ Chat failed")
+    .then(d=>{
+      // replace typing indicator with actual reply
+      const last = Array.from(chatBox.children).reverse().find(n=>n.className.includes('chat-bot'));
+      if(last) last.className = "chat-bot";
+      if(last) last.innerText = d.reply || "⚠️ No reply";
+    })
+    .catch(()=>{
+      const last = Array.from(chatBox.children).reverse().find(n=>n.className.includes('chat-bot'));
+      if(last) last.className = "chat-bot";
+      if(last) last.innerText = "⚠️ Chat failed";
+    })
     .finally(()=>chatSend.disabled=false);
   }
 
-  chatSend.addEventListener("click", send);
-  chatInput.addEventListener("keydown", e => e.key==="Enter" && send());
-
+  chatSend.onclick=send;
+  chatInput.addEventListener("keydown",e=>e.key==="Enter"&&send());
 });
 </script>
 
