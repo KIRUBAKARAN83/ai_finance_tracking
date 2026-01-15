@@ -1,90 +1,210 @@
 {% extends "base.html" %}
-
 {% block title %}Transaction{% endblock %}
 
 {% block content %}
 
 <style>
-/* ---------- PAGE ANIMATION ---------- */
+/* ================= THEME (Unique Premium: Teal + Indigo + Gold) ================= */
+:root{
+  --teal-1: #00B894;
+  --teal-2: #00D2FF;
+  --indigo-1: #6F4FF2;
+  --indigo-2: #A78BFA;
+  --gold-1: #FFD166;
+  --coral-1: #FF6B6B;
+
+  --bg: #F6FBFD;
+  --card-glass: rgba(255,255,255,0.72);
+  --muted: rgba(15,23,36,.6);
+  --border: rgba(15,23,36,.06);
+  --shadow-1: rgba(11,22,40,.08);
+  --focus-ring: rgba(111,79,242,.12);
+  --radius-lg: 16px;
+}
+
+/* ================= PAGE ENTRANCE ================= */
 .page-enter {
-  animation: pageFade 0.6s ease forwards;
   opacity: 0;
+  transform: translateY(18px) scale(.995);
+  animation: pageFadeIn 0.7s cubic-bezier(.2,.9,.2,1) forwards;
+}
+@keyframes pageFadeIn {
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@keyframes pageFade {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ---------- CARD ---------- */
+/* ================= FORM CARD (glass + gradient accent) ================= */
 .form-card {
-  border-radius: 18px;
-  background: linear-gradient(135deg, #ffffff, #f8fafc);
-  animation: cardFloat 0.8s ease forwards;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(250,252,255,.95));
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 50px var(--shadow-1);
+  overflow: hidden;
+  position: relative;
+  transition: transform .36s cubic-bezier(.2,.9,.2,1), box-shadow .36s ease;
 }
 
-@keyframes cardFloat {
-  from { transform: translateY(30px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+/* floating accent stripe */
+.form-card::before{
+  content: "";
+  position: absolute;
+  left: -40%;
+  top: -30%;
+  width: 180%;
+  height: 220%;
+  background: radial-gradient(closest-side, rgba(111,79,242,.06), transparent 40%),
+              linear-gradient(120deg, rgba(0,184,148,.06), rgba(111,79,242,.04));
+  transform: rotate(-12deg);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(18px);
+  opacity: .95;
 }
 
-/* ---------- FORM ELEMENTS ---------- */
+/* hover lift */
+.form-card:hover{
+  transform: translateY(-10px);
+  box-shadow: 0 36px 90px rgba(11,22,40,.12);
+}
+
+/* inner content sits above accent */
+.form-card .card-body{ position: relative; z-index: 2; }
+
+/* ================= FORM ELEMENTS ================= */
 .form-card input,
 .form-card select,
-.form-card textarea {
+.form-card textarea,
+.form-card .form-control {
   border-radius: 12px;
-  padding: 10px 14px;
-  transition: all 0.25s ease;
+  padding: 12px 14px;
+  border: 1px solid rgba(15,23,36,.06);
+  background: linear-gradient(180deg,#fff,#fbfdff);
+  transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+  width: 100%;
+  color: var(--text, #0F1724);
+  font-size: .95rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }
 
+/* focus with soft teal glow and indigo ring */
 .form-card input:focus,
 .form-card select:focus,
-.form-card textarea:focus {
-  border-color: #16a085;
-  box-shadow: 0 0 0 0.15rem rgba(22,160,133,0.25);
+.form-card textarea:focus,
+.form-card .form-control:focus {
+  outline: none;
+  border-color: rgba(0,184,148,.28);
+  box-shadow: 0 10px 30px rgba(0,210,255,.06), 0 0 0 6px var(--focus-ring);
+  transform: translateY(-2px);
 }
 
-/* ---------- BUTTONS ---------- */
+/* placeholder style */
+.form-card ::placeholder { color: rgba(15,23,36,.35); }
+
+/* label style */
+.form-card label { font-weight: 700; color: var(--muted); font-size: .9rem; }
+
+/* subtle helper text */
+.form-card .form-text { color: rgba(15,23,36,.5); font-size: .88rem; }
+
+/* ================= UNIQUE INPUT (amount) with prefix chip ================= */
+.input-amount {
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+}
+.input-amount .chip {
+  background: linear-gradient(135deg,var(--gold-1), #ffd88a);
+  color: #1b1b1b;
+  padding: .45rem .7rem;
+  border-radius: 10px;
+  font-weight:700;
+  box-shadow: 0 8px 22px rgba(255,209,102,.08);
+  flex: 0 0 auto;
+}
+
+/* ================= BUTTONS (premium) ================= */
 .btn-save {
-  background: linear-gradient(135deg, #16a085, #2ecc71);
+  background: linear-gradient(135deg, var(--teal-1), var(--teal-2));
+  color: #fff;
   border: none;
   border-radius: 12px;
   padding: 10px 22px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  font-weight: 800;
+  letter-spacing: .2px;
+  box-shadow: 0 14px 36px rgba(0,210,255,.10);
+  transition: transform .22s cubic-bezier(.2,.9,.2,1), box-shadow .22s ease, filter .12s ease;
+  display:inline-flex;
+  align-items:center;
+  gap:.6rem;
+  position: relative;
+  overflow: hidden;
+}
+.btn-save:hover{
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 30px 70px rgba(0,210,255,.14);
+  filter: brightness(1.03);
 }
 
-.btn-save:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(22,160,133,0.35);
-}
-
+/* cancel button uses indigo outline */
 .btn-cancel {
   border-radius: 12px;
   padding: 10px 22px;
+  border: 1px solid rgba(111,79,242,.08);
+  color: var(--indigo-1);
+  background: transparent;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.btn-cancel:hover{
+  transform: translateY(-3px);
+  background: linear-gradient(90deg, rgba(111,79,242,.06), rgba(0,210,255,.03));
+  color: #fff;
+  box-shadow: 0 18px 40px rgba(111,79,242,.06);
 }
 
-/* ---------- HEADER ---------- */
+/* ================= HEADER ================= */
 .form-title {
-  font-weight: 700;
-  letter-spacing: 0.4px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  color: var(--indigo-1);
+  display:flex;
+  align-items:center;
+  gap:.6rem;
 }
-
 .form-subtitle {
-  font-size: 0.9rem;
-  color: #6b7280;
+  font-size: .92rem;
+  color: rgba(15,23,36,.55);
 }
 
-/* ---------- FORM FIELD SPACING ---------- */
-.form-card p {
-  margin-bottom: 1.2rem;
+/* ================= MICRO-INTERACTIONS ================= */
+/* subtle ripple on save (JS triggers class) */
+.btn-save.ripple::after{
+  content: "";
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%) scale(0);
+  background: radial-gradient(circle, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 60%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: ripple 0.6s ease-out;
+  z-index: 3;
+}
+@keyframes ripple {
+  to { transform: translate(-50%,-50%) scale(1.6); opacity: 0; }
 }
 
-/* ---------- MOBILE ---------- */
+/* subtle input floating labels (if using .form-floating) */
+.form-floating .form-control{ padding-top: 1.25rem; }
+.form-floating label{ transition: transform .18s ease, font-size .18s ease; }
+
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
-  .btn {
-    width: 100%;
-    margin-bottom: 10px;
-  }
+  .col-md-6{ max-width: 94%; }
+  .form-card { border-radius: 12px; }
+  .btn-save, .btn-cancel { width: 100%; justify-content:center; }
+  .d-flex.flex-wrap { flex-direction: column; gap: .6rem; }
 }
 </style>
 
@@ -99,25 +219,101 @@
           Add or update your income / expense details
         </p>
 
-        <form method="post" novalidate>
+        <form method="post" novalidate id="transactionForm">
           {% csrf_token %}
-          {{ form.as_p }}
+
+          {# Render fields; wrap amount with chip if present #}
+          {% for field in form %}
+            <div class="mb-3">
+              {% if field.name == "amount" %}
+                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="input-amount">
+                  <div class="chip">₹</div>
+                  {{ field }}
+                </div>
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% for err in field.errors %}<div class="text-danger mt-1">{{ err }}</div>{% endfor %}
+              {% else %}
+                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                {% for err in field.errors %}<div class="text-danger mt-1">{{ err }}</div>{% endfor %}
+              {% endif %}
+            </div>
+          {% endfor %}
 
           <div class="d-flex flex-wrap gap-2 mt-3">
-            <button type="submit" class="btn btn-save text-white">
-              💾 Save Transaction
+            <button type="submit" class="btn btn-save text-white position-relative" id="saveBtn" aria-label="Save transaction">
+              <!-- Premium gem symbol (replaces previous icon) -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="flex:0 0 auto">
+                <path d="M12 2l3.5 5.5L22 9l-5 4 1.2 6.5L12 17l-6.2 2.5L7 13 2 9l6.5-1.5L12 2z" fill="rgba(255,255,255,.95)"/>
+                <path d="M12 2l3.5 5.5L22 9l-5 4 1.2 6.5L12 17" stroke="rgba(255,255,255,.85)" stroke-width="0.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Premium Save</span>
             </button>
 
-            <a href="/" class="btn btn-outline-secondary btn-cancel">
+            <a href="/" class="btn btn-cancel" id="cancelBtn">
               ❌ Cancel
             </a>
           </div>
-        </form>
 
+        </form>
       </div>
     </div>
 
   </div>
 </div>
+
+<script>
+/* small progressive enhancements without touching backend */
+
+/* 1) ripple effect on save */
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('transactionForm');
+  const saveBtn = document.getElementById('saveBtn');
+
+  if(saveBtn){
+    saveBtn.addEventListener('click', (e) => {
+      // add ripple class for visual feedback; allow form to submit normally
+      saveBtn.classList.remove('ripple');
+      // force reflow to restart animation
+      void saveBtn.offsetWidth;
+      saveBtn.classList.add('ripple');
+    });
+  }
+
+  /* 2) gentle entrance for inputs (stagger) */
+  const inputs = form ? Array.from(form.querySelectorAll('input, select, textarea')) : [];
+  inputs.forEach((el, i) => {
+    el.style.opacity = 0;
+    el.style.transform = 'translateY(8px)';
+    setTimeout(() => {
+      el.style.transition = 'opacity .5s ease, transform .5s cubic-bezier(.2,.9,.2,1)';
+      el.style.opacity = 1;
+      el.style.transform = 'translateY(0)';
+    }, 80 * i);
+  });
+
+  /* 3) simple client-side validation hint (non-blocking) */
+  if(form){
+    form.addEventListener('submit', (ev) => {
+      // find required empty fields and pulse them
+      const requiredEmpty = Array.from(form.querySelectorAll('[required]')).filter(f => !f.value.trim());
+      if(requiredEmpty.length){
+        requiredEmpty.forEach((f, idx) => {
+          f.style.transition = 'box-shadow .18s ease, transform .12s ease';
+          f.style.boxShadow = '0 8px 28px rgba(255,107,107,.12)';
+          f.style.transform = 'translateY(-2px)';
+          setTimeout(() => {
+            f.style.boxShadow = '';
+            f.style.transform = '';
+          }, 900 + idx * 80);
+        });
+        // allow submission to continue so server-side validation still runs
+      }
+    });
+  }
+});
+</script>
 
 {% endblock %}
