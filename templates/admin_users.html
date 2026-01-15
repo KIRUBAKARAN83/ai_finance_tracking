@@ -4,26 +4,231 @@
 {% block content %}
 
 <style>
+/* ================= THEME (Premium Teal + Royal Indigo) ================= */
+:root{
+  --teal-1: #00B894;
+  --teal-2: #00D2FF;
+  --indigo-1: #6F4FF2;
+  --indigo-2: #A78BFA;
+  --coral-1: #FF6B6B;
+  --gold: #FFD166;
+
+  --bg: #F7FBFC;
+  --card-bg: linear-gradient(180deg,#ffffff,#fbfdff);
+  --muted: rgba(15,23,36,.55);
+  --shadow: rgba(11,22,40,.06);
+  --glass-border: rgba(15,23,36,.04);
+  --focus: rgba(111,79,242,.12);
+}
+
+/* ================= LAYOUT & BASE ================= */
+body { background: var(--bg); color: #0F1724; }
+.card { border-radius: 12px; }
+
+/* ================= ENTRANCE ANIMATIONS ================= */
 .fade-up {
-  animation: fadeUp 0.6s ease forwards;
   opacity: 0;
+  transform: translateY(18px) scale(.995);
+  animation: fadeUp 0.7s cubic-bezier(.2,.9,.2,1) forwards;
 }
-.fade-up:nth-child(1){animation-delay:.1s}
-.fade-up:nth-child(2){animation-delay:.2s}
-
+.fade-up.delay-1 { animation-delay: .06s; }
+.fade-up.delay-2 { animation-delay: .12s; }
 @keyframes fadeUp {
-  from { transform: translateY(20px); opacity:0; }
-  to { transform: translateY(0); opacity:1; }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.badge-ban {
-  background: #dc2626;
+/* ================= CARD STYLING ================= */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 12px 30px var(--shadow);
+  transition: transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s ease, border-color .28s ease;
 }
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 28px 60px rgba(11,22,40,.10);
+  border-color: rgba(111,79,242,.06);
+}
+
+/* ================= TABLE STYLING ================= */
+.table-responsive { overflow: auto; }
+.table {
+  border-collapse: separate;
+  border-spacing: 0 12px;
+  margin-bottom: 0;
+}
+.table thead th {
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--indigo-1);
+  background: transparent;
+  border-bottom: none;
+  padding: .9rem 1rem;
+}
+.table tbody tr {
+  background: linear-gradient(180deg,#ffffff,#fcfdff);
+  transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(11,22,40,.03);
+  overflow: hidden;
+}
+.table tbody tr td, .table tbody tr th {
+  vertical-align: middle;
+  border: none;
+  padding: .85rem 1rem;
+}
+
+/* hover micro-interaction: lift + subtle gradient glow */
+.table tbody tr:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 48px rgba(11,22,40,.08);
+  background: linear-gradient(90deg, rgba(0,210,255,0.03), rgba(111,79,242,0.02));
+}
+
+/* subtle shimmer on row entry */
+@keyframes rowShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.table tbody tr.animate-entry {
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.0) 100%);
+  background-size: 200% 100%;
+  animation: rowShimmer 1.2s linear;
+}
+
+/* alternate subtle row tone */
+.table tbody tr:nth-child(odd) { background: linear-gradient(180deg,#ffffff,#fbfdff); }
+
+/* ================= BADGES ================= */
+.badge {
+  display:inline-block;
+  padding: .35rem .6rem;
+  border-radius: 10px;
+  font-size: .78rem;
+  font-weight:700;
+  box-shadow: 0 8px 20px rgba(111,79,242,.04);
+}
+.badge.super { background: #111827; color:#fff; }
+.badge.active {
+  background: linear-gradient(135deg,var(--teal-1),var(--teal-2));
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(0,210,255,.06);
+}
+.badge.banned {
+  background: linear-gradient(135deg,var(--coral-1),#ff8a65);
+  color: #fff;
+  box-shadow: 0 10px 28px rgba(255,107,107,.06);
+}
+
+/* animated status pulse for active users */
+.status-dot {
+  display:inline-block;
+  width:10px;height:10px;border-radius:50%;
+  margin-right:8px;vertical-align:middle;
+  box-shadow: 0 6px 18px rgba(0,210,255,.06);
+}
+.status-dot.active { background: var(--teal-1); animation: pulse 1.8s infinite; }
+.status-dot.banned { background: var(--coral-1); }
+@keyframes pulse {
+  0% { transform: scale(.9); box-shadow: 0 6px 18px rgba(0,210,255,.06); }
+  50% { transform: scale(1.12); box-shadow: 0 18px 40px rgba(0,210,255,.12); }
+  100% { transform: scale(.9); box-shadow: 0 6px 18px rgba(0,210,255,.06); }
+}
+
+/* ================= ACTION BUTTONS ================= */
+.btn {
+  border-radius: 10px;
+  font-weight: 700;
+  padding: .45rem .7rem;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
+}
+.btn-sm { padding: .35rem .6rem; font-size:.85rem; }
+
+/* outline warning */
+.btn-outline-warning {
+  color: #b45309;
+  border: 1px solid rgba(180,83,9,.08);
+  background: transparent;
+}
+.btn-outline-warning:hover {
+  background: linear-gradient(90deg, rgba(255,184,0,.06), rgba(111,79,242,.03));
+  color: #fff;
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 14px 36px rgba(111,79,242,.06);
+}
+
+/* outline success */
+.btn-outline-success {
+  color: var(--indigo-1);
+  border: 1px solid rgba(111,79,242,.08);
+  background: transparent;
+}
+.btn-outline-success:hover {
+  background: linear-gradient(90deg, rgba(111,79,242,.06), rgba(0,210,255,.03));
+  color: #fff;
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 14px 36px rgba(111,79,242,.06);
+}
+
+/* outline danger */
+.btn-outline-danger {
+  color: var(--coral-1);
+  border: 1px solid rgba(255,107,107,.08);
+  background: transparent;
+}
+.btn-outline-danger:hover {
+  background: linear-gradient(90deg, rgba(255,107,107,.06), rgba(255,138,101,.03));
+  color: #fff;
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 14px 36px rgba(255,107,107,.06);
+}
+
+/* small icon spacing */
+td .btn { margin-left: .25rem; }
+
+/* ================= FOCUS & ACCESSIBILITY ================= */
+a:focus, button:focus, .btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 6px var(--focus);
+  border-radius: 10px;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .table thead { display: none; }
+  .table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(11,22,40,0.04);
+    border-radius: 10px;
+    padding: .75rem;
+    background: linear-gradient(180deg,#ffffff,#fbfdff);
+  }
+  .table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: .45rem 0;
+    border-bottom: none;
+  }
+  .table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--indigo-1);
+    margin-right: 8px;
+  }
+  .btn { width: 100%; margin-bottom: .5rem; }
+}
+
+/* ================= TYPOGRAPHY UTILITIES ================= */
+.fw-bold { font-weight: 800; }
+.text-muted { color: var(--muted); }
+.text-end { text-align: right; }
 </style>
 
 <h3 class="fw-bold mb-4">👥 User Management</h3>
 
-<div class="card fade-up">
+<div class="card fade-up delay-1">
   <div class="card-body">
 
     <div class="table-responsive">
@@ -38,36 +243,46 @@
           </tr>
         </thead>
         <tbody>
-
           {% for u in users %}
-          <tr>
-            <td>
-              {{ u.username }}
-              {% if u.is_superuser %}
-                <span class="badge bg-dark ms-1">Superuser</span>
-              {% endif %}
+          <tr class="animate-entry">
+            <td data-label="Username">
+              <div style="display:flex;align-items:center;gap:.5rem">
+                {% if u.is_active %}
+                  <span class="status-dot active" aria-hidden="true"></span>
+                {% else %}
+                  <span class="status-dot banned" aria-hidden="true"></span>
+                {% endif %}
+                <div>
+                  <div>{{ u.username }}</div>
+                  {% if u.is_superuser %}
+                    <div style="margin-top:4px"><span class="badge super">Superuser</span></div>
+                  {% endif %}
+                </div>
+              </div>
             </td>
-            <td>{{ u.email|default:"—" }}</td>
-            <td>
-              {% if u.is_active %}
-                <span class="badge bg-success">Active</span>
-              {% else %}
-                <span class="badge badge-ban">Banned</span>
-              {% endif %}
-            </td>
-            <td>{{ u.date_joined|date:"M d, Y" }}</td>
 
-            <td class="text-end">
+            <td data-label="Email">{{ u.email|default:"—" }}</td>
+
+            <td data-label="Status">
+              {% if u.is_active %}
+                <span class="badge active">Active</span>
+              {% else %}
+                <span class="badge banned">Banned</span>
+              {% endif %}
+            </td>
+
+            <td data-label="Date Joined">{{ u.date_joined|date:"M d, Y" }}</td>
+
+            <td data-label="Actions" class="text-end">
               {% if not u.is_superuser %}
-                
                 {% if u.is_active %}
                   <a href="{% url 'transactions:ban_user' u.id %}"
-                     class="btn btn-sm btn-outline-warning">
+                     class="btn btn-sm btn-outline-warning" title="Ban user">
                     🚫 Ban
                   </a>
                 {% else %}
                   <a href="{% url 'transactions:unban_user' u.id %}"
-                     class="btn btn-sm btn-outline-success">
+                     class="btn btn-sm btn-outline-success" title="Unban user">
                     ✅ Unban
                   </a>
                 {% endif %}
@@ -77,21 +292,36 @@
                       class="d-inline">
                   {% csrf_token %}
                   <button class="btn btn-sm btn-outline-danger"
-                          onclick="return confirm('Delete this user permanently?')">
+                          onclick="return confirm('Delete this user permanently?')"
+                          title="Delete user">
                     🗑 Delete
                   </button>
                 </form>
-
               {% endif %}
             </td>
           </tr>
           {% endfor %}
-
         </tbody>
       </table>
     </div>
 
   </div>
 </div>
+
+<script>
+/* add small staggered entry animation for rows without touching backend */
+document.addEventListener('DOMContentLoaded', () => {
+  const rows = document.querySelectorAll('tbody tr.animate-entry');
+  rows.forEach((r, i) => {
+    r.style.opacity = 0;
+    r.style.transform = 'translateY(8px)';
+    setTimeout(() => {
+      r.style.transition = 'opacity .6s ease, transform .6s cubic-bezier(.2,.9,.2,1)';
+      r.style.opacity = 1;
+      r.style.transform = 'translateY(0)';
+    }, 80 * i);
+  });
+});
+</script>
 
 {% endblock %}
