@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}Create Budget{% endblock %}
 
 {% block content %}
@@ -15,7 +14,7 @@
           {% csrf_token %}
           {{ form.as_p }}
 
-          <button type="submit" class="btn btn-success w-100 mt-3 save-btn">
+          <button class="btn save-btn w-100 mt-3">
             Save Budget
           </button>
         </form>
@@ -25,43 +24,132 @@
 </div>
 
 <style>
-/* Card hover effect */
-.budget-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 12px;
-}
-.budget-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+/* ================= THEME (Premium Teal + Royal Indigo) ================= */
+:root{
+  --income-start: #00B894;   /* Premium Teal */
+  --income-end:   #00D2FF;   /* Cyan highlight */
+
+  --savings-start:#6F4FF2;   /* Royal Indigo */
+  --savings-end:  #A78BFA;   /* Lavender */
+
+  --expense-start:#FF6B6B;   /* Coral (danger) */
+  --expense-end:  #FF8A65;
+
+  --gold-1:       #FFD166;   /* Gold accent */
+
+  --bg:           #F7FBFC;
+  --card-glass:   rgba(255,255,255,.65);
+  --muted:        rgba(15,23,36,.6);
+  --card-border:  rgba(255,255,255,.22);
+  --text-strong:  #0F1724;
+  --shadow-1:     rgba(11,22,40,.06);
+  --control-bg:   #fbfdff;
 }
 
-/* Title animation */
-.animate-title {
-  animation: fadeInDown 0.8s ease;
+/* ================= LAYOUT & BASE ================= */
+body { background: var(--bg); color: var(--text-strong); }
+.card { border-radius: 14px; }
+
+/* ================= BUDGET CARD ================= */
+.budget-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,250,255,.98));
+  border: 1px solid rgba(11,22,40,0.04);
+  box-shadow: 0 18px 40px var(--shadow-1);
+  transition: transform .36s cubic-bezier(.2,.9,.2,1), box-shadow .36s ease, border .36s ease;
+  border-radius: 14px;
+  overflow: hidden;
 }
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+.budget-card:hover{
+  transform: translateY(-10px);
+  box-shadow: 0 30px 70px rgba(11,22,40,.10);
+  border-color: rgba(111,79,242,.06);
 }
 
-/* Form fade-in */
-.animate-form {
-  animation: fadeInUp 1s ease;
+/* ================= TITLE ANIMATION ================= */
+.animate-title{
+  color: var(--savings-start);
+  letter-spacing: .2px;
+  animation: titlePop .7s cubic-bezier(.2,.9,.2,1);
+  transform-origin: center;
 }
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes titlePop{
+  0%{opacity:0; transform:translateY(-18px) scale(.98)}
+  60%{opacity:1; transform:translateY(6px) scale(1.02)}
+  100%{transform:translateY(0) scale(1)}
 }
 
-/* Button hover */
-.save-btn {
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  font-weight: 600;
-  border-radius: 8px;
+/* ================= FORM ANIMATIONS ================= */
+.animate-form{
+  animation: formFade .9s ease both;
+  padding-top: 6px;
 }
-.save-btn:hover {
-  background-color: #198754; /* darker green */
-  transform: scale(1.03);
+@keyframes formFade{
+  from{opacity:0; transform:translateY(18px)}
+  to{opacity:1; transform:translateY(0)}
 }
+
+/* ================= FORM CONTROLS ================= */
+.form-control{
+  border-radius: 10px;
+  border: 1px solid rgba(11,22,40,0.06);
+  background: var(--control-bg);
+  padding: .6rem .75rem;
+  transition: box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+}
+.form-control:focus{
+  outline: none;
+  box-shadow: 0 8px 24px rgba(0,210,255,.06);
+  border-color: rgba(0,210,255,.28);
+  transform: translateY(-1px);
+}
+
+/* labels */
+.form-label{ font-weight:600; color:var(--muted); }
+
+/* ================= SAVE BUTTON ================= */
+.save-btn{
+  display:inline-block;
+  background: linear-gradient(135deg, var(--income-start), var(--income-end));
+  color: #fff;
+  border: none;
+  padding: .65rem .9rem;
+  border-radius: 10px;
+  font-weight: 700;
+  letter-spacing: .2px;
+  box-shadow: 0 12px 30px rgba(0,210,255,.08);
+  transition: transform .22s cubic-bezier(.2,.9,.2,1), box-shadow .22s ease, filter .22s ease;
+}
+.save-btn:hover{
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 22px 50px rgba(0,210,255,.14);
+  filter: brightness(1.03);
+}
+.save-btn:active{ transform: translateY(-1px) scale(.995); }
+
+/* ================= FORM HELP & ERRORS ================= */
+.help-text{ font-size: .9rem; color: var(--muted); margin-top: .25rem; }
+.field-error{ color: var(--expense-start); font-weight:600; font-size:.9rem; }
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px){
+  .col-md-6{ max-width: 92%; }
+  .budget-card{ padding: 12px; border-radius: 12px; }
+  .animate-title{ font-size: 1.05rem; }
+  .save-btn{ padding: .6rem; font-size: .95rem; }
+}
+
+/* ================= MICRO-INTERACTIONS ================= */
+/* subtle input focus ring for accessibility */
+.form-control:focus-visible{
+  box-shadow: 0 0 0 4px rgba(0,210,255,.06);
+}
+
+/* subtle floating label effect for long forms (if used) */
+.form-floating .form-control{ padding-top: 1.25rem; }
+.form-floating label{ transition: transform .18s ease, font-size .18s ease; }
+
+/* small utility */
+.fw-bold{ font-weight:800; }
+.text-primary{ color: var(--savings-start) !important; }
 </style>
 {% endblock %}
