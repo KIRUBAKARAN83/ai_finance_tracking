@@ -270,12 +270,63 @@ body.dark .meter-bg{
   font-size:14px;
   opacity:.6;
 }
+/* ================= TREND ================= */
+.trend{
+  font-weight:700;
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:14px;
+}
+.trend.up{
+  background:rgba(46,204,113,.15);
+  color:#2ecc71;
+}
+.trend.down{
+  background:rgba(231,76,60,.15);
+  color:#e74c3c;
+}
+.trend.stable{
+  background:rgba(149,165,166,.15);
+  color:#95a5a6;
+}
+
+/* ================= BREAKDOWN ================= */
+.health-breakdown .progress{
+  height:8px;
+  background:rgba(0,0,0,.08);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+body.dark .health-breakdown .progress{
+  background:rgba(255,255,255,.15);
+}
+
+.health-breakdown .progress-bar{
+  width:0%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#0d6efd,#6ea8fe);
+  transition:width 1.4s cubic-bezier(.22,.61,.36,1);
+}
+.card .fs-1 {
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+
 
 </style>
 
 <h3 class="fw-bold mb-4 reveal">📊 AI Finance Dashboard</h3>
 
-<!-- ================= SUMMARY ================= -->
+<!-- =====================================================
+  1️⃣ SUMMARY CARDS
+===================================================== -->
 <div class="row g-4 mb-4">
   <div class="col-md-4 reveal">
     <div class="card summary-card income">
@@ -305,74 +356,11 @@ body.dark .meter-bg{
   </div>
 </div>
 
-<!-- ================= AI INSIGHTS ================= -->
-<div class="card mb-4 reveal">
-  <div class="card-body">
-    <h5 class="fw-bold mb-3">🤖 AI Insights</h5>
-    {% if insights or auto_insights %}
-      <ul class="mb-0">
-        {% for i in insights %}<li>✔ {{ i }}</li>{% endfor %}
-        {% for ai in auto_insights %}<li>🧠 {{ ai }}</li>{% endfor %}
-      </ul>
-    {% else %}
-      <p class="text-muted mb-0">No insights yet.</p>
-    {% endif %}
-  </div>
-</div>
-
-<!-- ================= BUDGET ================= -->
-{% if budgets %}
-<div class="card mb-4 reveal">
-  <div class="card-body">
-    <h5 class="fw-bold mb-3">📉 Budget Usage</h5>
-    {% for b in budgets %}
-    <div class="mb-3">
-      <div class="d-flex justify-content-between fw-semibold">
-        <span>{{ b.category }}</span>
-        <span>₹{{ b.spent }} / ₹{{ b.limit }}</span>
-      </div>
-      <div class="progress mt-1" style="height:10px">
-        <div class="progress-bar shimmer
-          {% if b.percent >= 100 %}bg-danger
-          {% elif b.percent >= 80 %}bg-warning
-          {% else %}bg-success{% endif %}"
-          data-percent="{{ b.percent }}">
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-
-<!-- ================= ACTIONS ================= -->
-<div class="mb-4 reveal">
-  <a href="{% url 'add_transaction' %}" class="btn btn-success">➕ Add</a>
-  <a href="{% url 'monthly_pdf' %}" class="btn btn-outline-dark ms-2">⬇ PDF</a>
-  <a href="{% url 'create_budget' %}" class="btn btn-outline-primary ms-2">➕ Budget</a>
-</div>
-
-<!-- ================= CHARTS ================= -->
-<div class="row g-4 mb-5">
-  <div class="col-md-6 reveal">
-    <div class="card">
-      <div class="card-body">
-        <canvas id="barChart" style="height:320px"></canvas>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6 reveal">
-    <div class="card">
-      <div class="card-body">
-        <canvas id="pieChart" style="height:320px"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- ================= FINANCE HEALTH METER ================= -->
+<!-- =====================================================
+  2️⃣ FINANCE HEALTH SCORE
+===================================================== -->
 <div class="card mb-4 reveal text-center">
   <div class="card-body">
-
     <h5 class="fw-bold mb-3">💖 Finance Health Score</h5>
 
     <div class="health-meter mx-auto"
@@ -380,14 +368,8 @@ body.dark .meter-bg{
          data-color="{{ health_color }}">
 
       <svg viewBox="0 0 120 120">
-        <!-- Background -->
-        <circle cx="60" cy="60" r="52"
-                class="meter-bg"/>
-
-        <!-- Progress -->
-        <circle cx="60" cy="60" r="52"
-                class="meter-progress"/>
-
+        <circle cx="60" cy="60" r="52" class="meter-bg"/>
+        <circle cx="60" cy="60" r="52" class="meter-progress"/>
       </svg>
 
       <div class="meter-value">
@@ -403,21 +385,124 @@ body.dark .meter-bg{
     <p class="text-muted mt-3 mb-0">
       Based on savings, expenses, budgets & income stability
     </p>
-
   </div>
 </div>
 
+<!-- =====================================================
+  3️⃣ MONTHLY COMPARISON
+===================================================== -->
+<div class="card mb-4 reveal">
+  <div class="card-body">
+    <h5 class="fw-bold mb-2">📆 Monthly Expense Comparison</h5>
 
-<!-- ================= CHAT ================= -->
+    <div class="d-flex align-items-center gap-3">
+      <div class="fs-1">
+        {% if comparison.direction == "up" %} 🔺
+        {% elif comparison.direction == "down" %} 🔻
+        {% else %} ➖ {% endif %}
+      </div>
+
+      <div>
+        <p class="mb-1 fw-semibold text-{{ comparison.color }}">
+          {{ comparison.message }}
+        </p>
+
+        {% if comparison.status != "no-data" %}
+          <small class="text-muted">
+            Change: {{ comparison.percent }}%
+          </small>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+  4️⃣ AI INSIGHTS
+===================================================== -->
+<div class="card mb-4 reveal">
+  <div class="card-body">
+    <h5 class="fw-bold mb-3">🤖 AI Insights</h5>
+
+    {% if insights or auto_insights %}
+      <ul class="mb-0">
+        {% for i in insights %}<li>✔ {{ i }}</li>{% endfor %}
+        {% for ai in auto_insights %}<li>🧠 {{ ai }}</li>{% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted mb-0">No insights yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- =====================================================
+  5️⃣ BUDGETS
+===================================================== -->
+{% if budgets %}
+<div class="card mb-4 reveal">
+  <div class="card-body">
+    <h5 class="fw-bold mb-3">📉 Budget Usage</h5>
+
+    {% for b in budgets %}
+    <div class="mb-3">
+      <div class="d-flex justify-content-between fw-semibold">
+        <span>{{ b.category }}</span>
+        <span>₹{{ b.spent }} / ₹{{ b.limit }}</span>
+      </div>
+      <div class="progress mt-1">
+        <div class="progress-bar shimmer"
+             data-percent="{{ b.percent }}">
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- =====================================================
+  6️⃣ CHARTS
+===================================================== -->
+<div class="row g-4 mb-5">
+  <div class="col-md-6 reveal">
+    <div class="card"><div class="card-body">
+      <canvas id="barChart" style="height:320px"></canvas>
+    </div></div>
+  </div>
+  <div class="col-md-6 reveal">
+    <div class="card"><div class="card-body">
+      <canvas id="pieChart" style="height:320px"></canvas>
+    </div></div>
+  </div>
+</div>
+
+<!-- =====================================================
+  7️⃣ QUICK ACTIONS
+===================================================== -->
+<div class="mb-5 reveal">
+  <a href="{% url 'transactions:add_transaction' %}" class="btn btn-success">➕ Add</a>
+  <a href="{% url 'transactions:monthly_pdf' %}" class="btn btn-outline-dark ms-2">⬇ PDF</a>
+  <a href="{% url 'transactions:create_budget' %}" class="btn btn-outline-primary ms-2">➕ Budget</a>
+</div>
+
+<!-- =====================================================
+  8️⃣ AI CHAT
+===================================================== -->
 <div class="card reveal">
   <div class="card-body">
     <h5 class="fw-bold">🤖 AI Assistant</h5>
+
     <div id="chatBox" style="height:260px;overflow-y:auto" class="mb-3">
       <div class="text-muted">Ask me about your budget, expenses, savings…</div>
     </div>
+
     <div class="input-group">
-      <input id="chatInput" class="form-control" placeholder="Ask something…" autocomplete="off">
-      <button id="chatSend" class="btn btn-primary" style="background:linear-gradient(135deg,var(--savings-start),var(--savings-end));border:none;color:#fff">Send</button>
+      <input id="chatInput" class="form-control" placeholder="Ask something…">
+      <button id="chatSend"
+              class="btn btn-primary"
+              style="background:linear-gradient(135deg,var(--savings-start),var(--savings-end));border:none">
+        Send
+      </button>
     </div>
   </div>
 </div>
@@ -656,6 +741,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+
+  document.querySelectorAll(".health-breakdown .progress-bar")
+    .forEach(bar=>{
+      setTimeout(()=>{
+        bar.style.width = (bar.dataset.percent || 0) + "%";
+      },300);
+    });
+
+});
+</script>
+
 
 
 {% endblock %}
