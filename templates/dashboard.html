@@ -213,6 +213,64 @@ canvas{display:block;max-width:100%}
   .card{border-radius:14px}
   .btn{font-size:.95rem}
 }
+/* ================= HEALTH METER ================= */
+.health-meter{
+  width:160px;
+  height:160px;
+  position:relative;
+}
+
+.health-meter svg{
+  width:100%;
+  height:100%;
+  transform:rotate(-90deg);
+}
+
+.meter-bg{
+  fill:none;
+  stroke:rgba(0,0,0,.08);
+  stroke-width:12;
+}
+
+body.dark .meter-bg{
+  stroke:rgba(255,255,255,.12);
+}
+
+.meter-progress{
+  fill:none;
+  stroke-width:12;
+  stroke-linecap:round;
+  stroke-dasharray:327;
+  stroke-dashoffset:327;
+  transition:stroke-dashoffset 1.6s cubic-bezier(.22,.61,.36,1);
+}
+
+/* Dynamic colors */
+.health-meter[data-color="success"] .meter-progress{ stroke:#2ecc71; }
+.health-meter[data-color="primary"] .meter-progress{ stroke:#0d6efd; }
+.health-meter[data-color="warning"] .meter-progress{ stroke:#f39c12; }
+.health-meter[data-color="danger"]  .meter-progress{ stroke:#e74c3c; }
+
+.meter-value{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  font-weight:800;
+}
+
+.meter-value span{
+  font-size:42px;
+  line-height:1;
+}
+
+.meter-value small{
+  font-size:14px;
+  opacity:.6;
+}
+
 </style>
 
 <h3 class="fw-bold mb-4 reveal">📊 AI Finance Dashboard</h3>
@@ -289,9 +347,9 @@ canvas{display:block;max-width:100%}
 
 <!-- ================= ACTIONS ================= -->
 <div class="mb-4 reveal">
-  <a href="{% url 'transactions:add_transaction' %}" class="btn btn-success">➕ Add</a>
-  <a href="{% url 'transactions:monthly_pdf' %}" class="btn btn-outline-dark ms-2">⬇ PDF</a>
-  <a href="{% url 'transactions:create_budget' %}" class="btn btn-outline-primary ms-2">➕ Budget</a>
+  <a href="{% url 'add_transaction' %}" class="btn btn-success">➕ Add</a>
+  <a href="{% url 'monthly_pdf' %}" class="btn btn-outline-dark ms-2">⬇ PDF</a>
+  <a href="{% url 'create_budget' %}" class="btn btn-outline-primary ms-2">➕ Budget</a>
 </div>
 
 <!-- ================= CHARTS ================= -->
@@ -311,6 +369,44 @@ canvas{display:block;max-width:100%}
     </div>
   </div>
 </div>
+<!-- ================= FINANCE HEALTH METER ================= -->
+<div class="card mb-4 reveal text-center">
+  <div class="card-body">
+
+    <h5 class="fw-bold mb-3">💖 Finance Health Score</h5>
+
+    <div class="health-meter mx-auto"
+         data-score="{{ health_score }}"
+         data-color="{{ health_color }}">
+
+      <svg viewBox="0 0 120 120">
+        <!-- Background -->
+        <circle cx="60" cy="60" r="52"
+                class="meter-bg"/>
+
+        <!-- Progress -->
+        <circle cx="60" cy="60" r="52"
+                class="meter-progress"/>
+
+      </svg>
+
+      <div class="meter-value">
+        <span id="healthValue">0</span>
+        <small>/100</small>
+      </div>
+    </div>
+
+    <span class="badge bg-{{ health_color }} mt-3 px-3 py-2">
+      {{ health_grade }}
+    </span>
+
+    <p class="text-muted mt-3 mb-0">
+      Based on savings, expenses, budgets & income stability
+    </p>
+
+  </div>
+</div>
+
 
 <!-- ================= CHAT ================= -->
 <div class="card reveal">
@@ -399,7 +495,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function load(){
-    fetch("{% url 'transactions:chart_data' %}")
+    fetch("{% url 'chart_data' %}")
     .then(r=>r.json())
     .then(d=>{
       if(!done){
@@ -499,7 +595,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chatSend.disabled=true;
     append("typing…","chat-bot typing");
 
-    fetch("{% url 'transactions:chat_api' %}",{
+    fetch("{% url 'chat_api' %}",{
       method:"POST",
       headers:{
         "Content-Type":"application/json",
@@ -526,5 +622,40 @@ document.addEventListener("DOMContentLoaded", () => {
   chatInput.addEventListener("keydown",e=>e.key==="Enter"&&send());
 });
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const meter = document.querySelector(".health-meter");
+  if(!meter) return;
+
+  const score = parseInt(meter.dataset.score || 0);
+  const circle = meter.querySelector(".meter-progress");
+  const valueEl = document.getElementById("healthValue");
+
+  const circumference = 327; // 2 * PI * r
+  const offset = circumference - (score / 100) * circumference;
+
+  // Animate arc
+  setTimeout(() => {
+    circle.style.strokeDashoffset = offset;
+  }, 300);
+
+  // Animate number
+  let current = 0;
+  const step = Math.max(score / 60, 1);
+
+  (function count(){
+    current += step;
+    if(current < score){
+      valueEl.innerText = Math.floor(current);
+      requestAnimationFrame(count);
+    } else {
+      valueEl.innerText = score;
+    }
+  })();
+
+});
+</script>
+
 
 {% endblock %}
