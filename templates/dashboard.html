@@ -580,7 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function load(){
-    fetch("{% url 'chart_data' %}")
+    fetch("{% url 'transactions:chart_data' %}")
     .then(r=>r.json())
     .then(d=>{
       if(!done){
@@ -680,7 +680,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chatSend.disabled=true;
     append("typing…","chat-bot typing");
 
-    fetch("{% url 'chat_api' %}",{
+    fetch("{% url 'transactions:chat_api' %}",{
       method:"POST",
       headers:{
         "Content-Type":"application/json",
