@@ -483,6 +483,12 @@ body.dark .health-breakdown .progress{
   <a href="{% url 'transactions:add_transaction' %}" class="btn btn-success">➕ Add</a>
   <a href="{% url 'transactions:monthly_pdf' %}" class="btn btn-outline-dark ms-2">⬇ PDF</a>
   <a href="{% url 'transactions:create_budget' %}" class="btn btn-outline-primary ms-2">➕ Budget</a>
+   <a
+  href="{% url 'transactions:expense_category_chart' %}"
+  class="btn btn-outline-primary ms-2"
+>
+  📊 Category Analysis
+</a>
 </div>
 
 <!-- =====================================================
