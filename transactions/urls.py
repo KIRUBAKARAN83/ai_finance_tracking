@@ -32,7 +32,7 @@ from .views import (
     #expense_category_page
     
 )
-from .views import expense_category_char
+from .views import expense_category_chart
 from .pdf import monthly_pdf
 
 app_name = "transactions"
