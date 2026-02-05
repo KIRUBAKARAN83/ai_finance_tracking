@@ -403,7 +403,7 @@ matplotlib.use("Agg")  # REQUIRED for servers (no GUI)
 
 import matplotlib.pyplot as plt
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_require
+#from django.contrib.auth.decorators import login_required
 from datetime import date
 
 from insights.services import category_breakdown
