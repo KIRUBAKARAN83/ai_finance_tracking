@@ -264,7 +264,7 @@ def budgets_list(request):
 def delete_budget(request, budget_id):
     budget = get_object_or_404(Budget, id=budget_id, user=request.user)
     budget.delete()
-    return redirect("budgets_list")  # redirect back to list after deletion
+    return redirect("transactions:budgets_list")  # redirect back to list after deletion
 
 
 # =========================================================
