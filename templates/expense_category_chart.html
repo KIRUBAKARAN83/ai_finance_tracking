@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Expense Category Analysis{% endblock %}
+{% block content %}
+
+
+<div class="container py-5">
+
+  <!-- Animated Heading -->
+  <h3 class="fw-bold mb-4 text-gradient fade-in-down">
+    📊 Expense Category Analysis
+  </h3>
+
+  <!-- Premium Card -->
+  <div class="card shadow-lg border-0 rounded-4 hover-scale fade-in-up">
+    <div class="card-body text-center p-4">
+
+      <h5 class="fw-bold mb-3 text-primary fade-in">
+        Monthly Expense by Category
+      </h5>
+
+      <!-- Chart with smooth hover effect -->
+      <img
+        src="{% url 'expense_category_chart' %}"
+        alt=""
+        class="img-fluid rounded shadow-lg hover-glow"
+        style="max-height:420px; transition: transform 0.4s ease;"
+      >
+
+      <p class="text-muted mt-3 mb-0 fade-in">
+        This chart represents how your expenses are distributed
+        across categories for the current month.
+      </p>
+      <!-- Export Button -->
+  <a href="{% url 'expense_category_chart' %}" 
+     class="btn btn-primary shadow-sm">
+    ⬇️ Download Chart as PNG
+  </a>
+
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Custom Premium Animations -->
+<style>
+  /* Gradient text */
+  .text-gradient {
+    background: linear-gradient(90deg, #007bff, #6610f2);
+    -webkit-background-clip: text;   /* Chrome, Safari */
+    -webkit-text-fill-color: transparent;
+    color: transparent;              /* fallback */
+    display: inline-block;           /* ensures gradient applies properly */
+  }
+
+  /* Fade-in animations */
+  .fade-in { animation: fadeIn 1.2s ease forwards; opacity: 0; }
+  .fade-in-up { animation: fadeInUp 1.2s ease forwards; opacity: 0; }
+  .fade-in-down { animation: fadeInDown 1.2s ease forwards; opacity: 0; }
+
+  @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+  @keyframes fadeInUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+  @keyframes fadeInDown { from {opacity:0; transform:translateY(-20px);} to {opacity:1; transform:translateY(0);} }
+
+  /* Hover effects */
+  .hover-scale:hover { transform: scale(1.02); transition: transform 0.3s ease; }
+  .hover-glow:hover { box-shadow: 0 0 20px rgba(0,123,255,0.5); transform: scale(1.03); }
+</style>
+
