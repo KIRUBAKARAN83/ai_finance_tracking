@@ -28,6 +28,8 @@ from .views import (
 
     # PWA
     offline,
+    delete_budget
+    #expense_category_page
 )
 
 from .pdf import monthly_pdf
@@ -63,6 +65,11 @@ urlpatterns = [
     path("admin-users/ban/<int:user_id>/", ban_user, name="ban_user"),
     path("admin-users/unban/<int:user_id>/", unban_user, name="unban_user"),
     path("admin-users/delete/<int:user_id>/", delete_user, name="delete_user"),
+    path("charts/expense-category/", expense_category_chart, name="expense_category_chart"),
+    #path("expense-page/", expense_category_page, name="expense_category_page"),
+    path("budgets/delete/<int:budget_id>/", delete_budget, name="delete_budget"),
+
+    
 
     # ================= PWA =================
     path("offline/", offline, name="offline"),
