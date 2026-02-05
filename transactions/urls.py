@@ -30,9 +30,9 @@ from .views import (
     offline,
     delete_budget
     #expense_category_page
-    expense_category_chart
+    
 )
-
+from .views import expense_category_char
 from .pdf import monthly_pdf
 
 app_name = "transactions"
