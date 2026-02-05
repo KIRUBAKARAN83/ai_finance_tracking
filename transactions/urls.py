@@ -30,6 +30,7 @@ from .views import (
     offline,
     delete_budget
     #expense_category_page
+    expense_category_chart
 )
 
 from .pdf import monthly_pdf
