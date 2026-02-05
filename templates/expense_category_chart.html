@@ -20,7 +20,7 @@
 
       <!-- Chart with smooth hover effect -->
       <img
-        src="{% url 'expense_category_chart' %}"
+        src="{% url 'transactions:expense_category_chart' %}"
         alt=""
         class="img-fluid rounded shadow-lg hover-glow"
         style="max-height:420px; transition: transform 0.4s ease;"
@@ -31,7 +31,7 @@
         across categories for the current month.
       </p>
       <!-- Export Button -->
-  <a href="{% url 'expense_category_chart' %}" 
+  <a href="{% url 'transactions:expense_category_chart' %}" 
      class="btn btn-primary shadow-sm">
     ⬇️ Download Chart as PNG
   </a>
