@@ -397,3 +397,58 @@ def delete_user(request, user_id):
 # =========================================================
 def offline(request):
     return render(request, "offline.html")
+
+import matplotlib
+matplotlib.use("Agg")  # REQUIRED for servers (no GUI)
+
+import matplotlib.pyplot as plt
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_require
+from datetime import date
+
+from insights.services import category_breakdown
+
+
+@login_required
+def expense_category_chart(request):
+    """
+    Generates a bar chart of expenses by category for the current month
+    and returns it as a PNG image response.
+    """
+
+    today = date.today()
+
+    # Get expense breakdown for the logged-in user
+    df = category_breakdown(request.user, today.month, today.year)
+
+    if df.empty:
+        return HttpResponse("No data available", status=204)
+
+    # Create the chart
+    plt.figure(figsize=(6, 4))
+    plt.bar(df["category"], df["total"], color="#6F4FF2")
+    plt.title("Expense by Category (₹)")
+    plt.xlabel("Category")
+    plt.ylabel("Amount (₹)")
+    plt.xticks(rotation=30, ha="right")
+    plt.tight_layout()
+
+    # Return chart as PNG
+    response = HttpResponse(content_type="image/png")
+    plt.savefig(response, format="png", dpi=120)
+    plt.close()
+
+    return response
+    #return render(request, "expense_category_chart.html")
+
+"""from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+#@login_required
+def expense_category_page(request):
+    
+    Renders the page that shows the chart and provides export option.
+    
+    return render(request, "expense_category_page.html")"""
+
+
